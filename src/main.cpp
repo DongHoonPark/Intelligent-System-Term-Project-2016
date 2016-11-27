@@ -331,6 +331,9 @@ void generate_path_RRT()
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
 
     while(!rrt->generateRRT(20.0, -20.0, 20.0, -20.0, 0, 2.5)){
+        ros::spinOnce();
+        current_pos.x = robot_pose.x;
+        current_pos.y = robot_pose.y;
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     };
 
