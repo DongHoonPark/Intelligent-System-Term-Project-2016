@@ -141,7 +141,7 @@ void rrtTree::addVertex(point x_new, point x_rand, int idx_near) {
     auto dx = node_parent->location.x - x_new.x;
     auto dy = node_parent->location.y - x_new.y;
     auto len = sqrt(dx*dx + dy*dy);
-    if(len < 1){
+    if(len < 0.5){
         return;
     }
     this->ptrTable[this->count] = new node;
@@ -162,8 +162,7 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
         iter++;
         if(iter > 10000){
             //reset and replanning
-            this->count = 0;
-            iter = 0;
+            return 0;
         }
 
         point x_rand = randomState(x_max, x_min, y_max, y_min);
@@ -183,6 +182,7 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
         }
 
     }
+    return 1;
 
 //    int cnt = 0;
 //    while(1){

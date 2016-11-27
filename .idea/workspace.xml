@@ -60,7 +60,12 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3ebc24ea-ec65-4681-af91-f083f103dfe3" name="Default" comment="" />
+    <list default="true" id="3ebc24ea-ec65-4681-af91-f083f103dfe3" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/project4/rrtTree.cpp" afterPath="$PROJECT_DIR$/include/project4/rrtTree.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
+    </list>
     <ignored path="project4.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -82,8 +87,8 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="350">
-              <caret line="444" column="48" selection-start-line="444" selection-start-column="48" selection-end-line="444" selection-end-column="48" />
+            <state relative-caret-position="270">
+              <caret line="332" column="11" selection-start-line="332" selection-start-column="11" selection-end-line="332" selection-end-column="11" />
               <folding>
                 <element signature="e#114#133#0" expanded="true" />
               </folding>
@@ -94,7 +99,7 @@
       <file leaf-file-name="rrtTree.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-82">
+            <state relative-caret-position="540">
               <caret line="30" column="38" selection-start-line="30" selection-start-column="38" selection-end-line="30" selection-end-column="38" />
               <folding />
             </state>
@@ -104,14 +109,17 @@
       <file leaf-file-name="rrtTree.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="11" column="28" selection-start-line="11" selection-start-column="28" selection-end-line="11" selection-end-column="28" />
+            <state relative-caret-position="175">
+              <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -134,7 +142,7 @@
   </component>
   <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds">
-    <option name="x" value="814" />
+    <option name="x" value="807" />
     <option name="y" value="31" />
     <option name="width" value="1106" />
     <option name="height" value="1049" />
@@ -306,6 +314,12 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
@@ -691,20 +705,21 @@
       <workItem from="1480219106463" duration="2488000" />
       <workItem from="1480221610282" duration="618000" />
       <workItem from="1480222262326" duration="345000" />
-      <workItem from="1480222774610" duration="17784000" />
+      <workItem from="1480222774610" duration="19468000" />
+      <workItem from="1480245128769" duration="545000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21235000" />
+    <option name="totallyTimeSpent" value="23464000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="814" y="31" width="1106" height="1049" extended-state="0" />
+    <frame x="807" y="31" width="1106" height="1049" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19565217" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32870865" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32832617" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -712,7 +727,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3991462" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39914164" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -735,7 +750,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="58" />
+      <option name="time" value="59" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -768,7 +783,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="11736">
           <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -776,7 +790,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="324">
           <caret line="18" column="17" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -830,7 +843,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="11736">
           <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -838,7 +850,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="3" column="25" selection-start-line="3" selection-start-column="25" selection-end-line="3" selection-end-column="25" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -882,7 +893,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="11736">
           <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -898,7 +908,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -906,7 +915,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -914,7 +922,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
           <caret line="137" column="21" selection-start-line="137" selection-start-column="21" selection-end-line="137" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -922,7 +929,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="576">
           <caret line="42" column="34" selection-start-line="42" selection-start-column="29" selection-end-line="42" selection-end-column="40" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -930,7 +936,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="252">
           <caret line="21" column="7" selection-start-line="21" selection-start-column="7" selection-end-line="21" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -938,7 +943,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -946,7 +950,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -972,7 +975,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="149" column="0" selection-start-line="149" selection-start-column="0" selection-end-line="149" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -980,7 +982,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -993,7 +994,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="6" column="34" selection-start-line="6" selection-start-column="34" selection-end-line="6" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1001,7 +1001,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
           <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="11" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1014,9 +1013,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
           <caret line="9" column="18" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#29#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1024,7 +1020,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="342">
           <caret line="738" column="0" selection-start-line="738" selection-start-column="0" selection-end-line="738" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1032,13 +1027,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="537" column="0" selection-start-line="537" selection-start-column="0" selection-end-line="537" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-82">
+        <state relative-caret-position="540">
           <caret line="30" column="38" selection-start-line="30" selection-start-column="38" selection-end-line="30" selection-end-column="38" />
           <folding />
         </state>
@@ -1048,7 +1042,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="786" column="0" selection-start-line="786" selection-start-column="0" selection-end-line="786" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1056,7 +1049,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="604" column="0" selection-start-line="604" selection-start-column="0" selection-end-line="604" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1064,7 +1056,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="558" column="0" selection-start-line="558" selection-start-column="0" selection-end-line="558" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1072,7 +1063,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="666" column="0" selection-start-line="666" selection-start-column="0" selection-end-line="666" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1080,7 +1070,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="230">
           <caret line="273" column="0" selection-start-line="273" selection-start-column="0" selection-end-line="273" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1088,7 +1077,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="163" column="0" selection-start-line="163" selection-start-column="0" selection-end-line="163" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1096,7 +1084,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
           <caret line="137" column="0" selection-start-line="137" selection-start-column="0" selection-end-line="137" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1104,22 +1091,21 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7470">
           <caret line="415" column="0" selection-start-line="415" selection-start-column="0" selection-end-line="415" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="11" column="28" selection-start-line="11" selection-start-column="28" selection-end-line="11" selection-end-column="28" />
+        <state relative-caret-position="175">
+          <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="444" column="48" selection-start-line="444" selection-start-column="48" selection-end-line="444" selection-end-column="48" />
+        <state relative-caret-position="270">
+          <caret line="332" column="11" selection-start-line="332" selection-start-column="11" selection-end-line="332" selection-end-column="11" />
           <folding>
             <element signature="e#114#133#0" expanded="true" />
           </folding>

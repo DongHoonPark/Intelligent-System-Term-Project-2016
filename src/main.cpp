@@ -330,7 +330,9 @@ void generate_path_RRT()
 
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
 
-    rrt->generateRRT(20.0, -20.0, 20.0, -20.0, 0, 2.5);
+    while(!rrt->generateRRT(20.0, -20.0, 20.0, -20.0, 0, 2.5)){
+        rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+    };
 
     auto result = rrt->backtracking();
 
