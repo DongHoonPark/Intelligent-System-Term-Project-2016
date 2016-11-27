@@ -160,7 +160,7 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
     auto iter = 0;
     while(!is_rrt_done){
         iter++;
-        if(iter > 20000){
+        if(iter > 40000){
             //reset and replanning
             return 0;
         }
