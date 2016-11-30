@@ -20,6 +20,7 @@ private:
         int idx;
         point rand;
         point location;
+        double cost;    // For RRT*
         int idx_parent;
     }*root;
 
@@ -43,7 +44,10 @@ private:
 
     // TODO
     // Declare member functions need to implement RRT-Star
-
+    std::vector<int> nearNeighbors(point, double);
+    void addVertexAndCost(point x_new, point x_rand, int idx_min, double cost);
+    void changeEdge(int idx, int idx_parent, double c);
+    double getC(point, point);
 
 public:
     rrtTree();

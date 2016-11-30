@@ -21,6 +21,7 @@ rrtTree::rrtTree(point x_init, point x_goal, cv::Mat map, double map_origin_x, d
     root->idx = 0;
     root->idx_parent = NULL;
     root->location = x_init;
+    root->cost = 0;
     root->rand = x_init;
 }
 
@@ -125,13 +126,6 @@ void rrtTree::visualizeTree(std::vector<point> path){
 // 1. Copy your implementation of member functions in Project Assignment #2
 // 2. Implement generateRRTst
 
-int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_min, int K, double MaxStep)
-{
-    // TODO 2.
-}
-
-
-
 void rrtTree::addVertex(point x_new, point x_rand, int idx_near) {
     // TODO
     node* node_parent = this->ptrTable[idx_near];
@@ -141,7 +135,7 @@ void rrtTree::addVertex(point x_new, point x_rand, int idx_near) {
     auto dx = node_parent->location.x - x_new.x;
     auto dy = node_parent->location.y - x_new.y;
     auto len = sqrt(dx*dx + dy*dy);
-    if(len < 0.5){
+    if(len < 1){
         return;
     }
     this->ptrTable[this->count] = new node;
@@ -160,9 +154,10 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
     auto iter = 0;
     while(!is_rrt_done){
         iter++;
-        if(iter > 40000){
+        if(iter > 10000){
             //reset and replanning
-            return 0;
+            this->count = 0;
+            iter = 0;
         }
 
         point x_rand = randomState(x_max, x_min, y_max, y_min);
@@ -180,48 +175,68 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
             is_rrt_done = true;
             addVertex(x_goal, x_rand, idx_near);
         }
-
     }
-    return 1;
+}
 
-//    int cnt = 0;
-//    while(1){
-//        /*
-//        point x1, x2;
-//        x1.x=+1.1; x1.y=-7.2; x2.x=+1.2; x2.y=-7.1;
-//        if(isCollision(x1, x2)) printf("ok.\n");
-//        */
-//        point x_rand = (rand() % 5 == 0)? x_goal: randomState(x_max, x_min, y_max, y_min);
-//        int idx_near = nearestNeighbor(x_rand);
-//        point x_new = newState(idx_near, x_rand, MaxStep);
-//        if(!isCollision(x_new, ptrTable[idx_near]->location)) continue;
-//        addVertex(x_new, x_rand, idx_near);
-//        // Break if the closest vertex is close enough to x_goal
-//        if(++cnt == K){
-//            int nearest = nearestNeighbor(x_goal);
-//            point x_nearest = ptrTable[nearest]->location;
-//            /*
-//            double dist = sqrt(pow((x_goal.x-x_nearest.x), 2) + pow((x_goal.y-x_nearest.y), 2));
-//            printf("\t\tdist = %f\n", dist);
-//            if(dist < 0.04) return 0;
-//            */
-//            if((x_goal.x - x_nearest.x == 0) && (x_goal.y - x_nearest.y == 0)) return 0;
-//            else break;
-//        }
-//    }
-//    while(1){
-//        point x_rand = (rand() % 5 == 0)? x_goal: randomState(x_max, x_min, y_max, y_min);
-//        int idx_near = nearestNeighbor(x_rand);
-//        point x_new = newState(idx_near, x_rand, MaxStep);
-//        if(!isCollision(x_new, ptrTable[idx_near]->location)) continue;
-//        addVertex(x_new, x_rand, idx_near);
-//        // Break if the latest vertex is close enough to x_goal
-//        point x_nearest = ptrTable[count-1]->location;
-//        if((x_goal.x - x_nearest.x == 0) && (x_goal.y - x_nearest.y == 0)) return 0;
-//        if(++cnt == 20000) break;
-//    }
-//    return -1;
 
+int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_min, int K, double MaxStep){
+    // TODO
+    /* card(V) = size of V, the set of vertices
+     * d = dimension of point
+     * gamma = Heuristic parameter
+     */
+    double gamma = 5.0;
+    bool is_rrt_done = false;
+    auto iter = 0;
+    while(!is_rrt_done){
+        if(++iter > 20000){
+            //reset and replanning
+            this->count = 1;
+            iter = 0;
+        }
+        point x_rand = randomState(x_max, x_min, y_max, y_min);
+        //point x_rand = (this->count % 5 == 0)? this->x_goal: randomState(x_max, x_min, y_max, y_min);
+
+        int idx_nearest = nearestNeighbor(x_rand);
+        point x_new = newState(idx_nearest, x_rand, MaxStep);
+        if(!isCollision(x_new, this->ptrTable[idx_nearest]->location)) continue;
+
+        printf("iter: %d, count: %d\n", iter, this->count);
+        // RRT*
+        // Find neighbor points s.t. |X_near[i] - x_new| < radius & no collision
+        std::vector<int> X_nears = nearNeighbors(x_new, std::min(MaxStep, gamma*pow((log(this->count)/(this->count)),1/2)));
+        std::vector<double> X_nears_c;       // Remember c(X_near_i, x_new)
+        for(auto i=0; i < X_nears.size(); ++i)
+            X_nears_c.push_back(getC(this->ptrTable[X_nears[i]]->location, x_new));
+        // Connect along a minimum-cost path
+        int idx_min = idx_nearest;
+        auto c_min = this->ptrTable[idx_nearest]->cost + getC(this->ptrTable[idx_nearest]->location, x_new);
+        for(auto i=0; i<X_nears.size(); ++i){
+            auto tmp_c_min = this->ptrTable[X_nears[i]]->cost + X_nears_c[i];
+            if(tmp_c_min < c_min){
+                idx_min = X_nears[i];
+                c_min = tmp_c_min;
+            }
+         }
+        addVertexAndCost(x_new, x_rand, idx_min, c_min);
+        // Rewire the tree
+        for(auto i=0; i<X_nears.size(); ++i){
+            if(this->ptrTable[this->count - 1]->cost + X_nears_c[i] < this->ptrTable[X_nears[i]]->cost)
+                changeEdge(X_nears[i], (this->count - 1), X_nears_c[i]);
+         }
+        if(this->count >= K){
+            int idx_near_goal = (this->count == K)? nearestNeighbor(this->x_goal): (this->count - 1);
+            point x_nearest = this->ptrTable[idx_near_goal]->location;
+            double dx = this->x_goal.x - x_nearest.x;
+            double dy = this->x_goal.y - x_nearest.y;
+            auto len = sqrt(dx*dx + dy*dy);
+            if(len < 0.5){
+                addVertexAndCost(this->x_goal, this->x_goal, idx_near_goal, len);
+                is_rrt_done = true;
+            }
+        }
+    }
+    return 0;
 }
 
 
@@ -277,26 +292,22 @@ int rrtTree::nearestNeighbor(point x_rand) {
     return min_idx;
 }
 
+
 bool rrtTree::isCollision(point x1, point x2) {
     // TODO
     //Pioneer has about 40cm radius, 8px
     int pixel_xrange = 3;
     int pixel_yrange = 3;
 
-
-    auto x1_x_idx = (int)(x1.x / 0.05 + this->map_origin_x);
-    auto x1_y_idx = (int)(x1.y / 0.05 + this->map_origin_y);
-    auto x2_x_idx = (int)(x2.x / 0.05 + this->map_origin_x);
-    auto x2_y_idx = (int)(x2.y / 0.05 + this->map_origin_y);
+    auto x1_x_idx = (int)(x1.x / (this->res) + this->map_origin_x);
+    auto x1_y_idx = (int)(x1.y / (this->res) + this->map_origin_y);
+    auto x2_x_idx = (int)(x2.x / (this->res) + this->map_origin_x);
+    auto x2_y_idx = (int)(x2.y / (this->res) + this->map_origin_y);
 
     double diff_x = x1_x_idx - x2_x_idx;
-    double diff_x_abs = fabs(diff_x);
-
     double diff_y = x1_y_idx - x2_y_idx;
-    double diff_y_abs = fabs(diff_y);
-
     double len = sqrt(diff_x*diff_x + diff_y*diff_y);
-    int pnum = (int)(len / 0.05);
+    int pnum = (int)len;//(len / (this->res));
     if(pnum < 0){
         return false;
     }
@@ -304,11 +315,11 @@ bool rrtTree::isCollision(point x1, point x2) {
         for(auto i=0; i< pnum; i++){
             auto sample_x = (int)(((double)x1_x_idx) + (x2_x_idx - x1_x_idx) * i / pnum);
             auto sample_y = (int)(((double)x1_y_idx) + (x2_y_idx - x1_y_idx) * i / pnum);
-
             for(auto j=0; j < pixel_xrange; j++){
                 for(auto k=0; k < pixel_yrange; k++){
-
-                    auto pixel = this->map.at<uchar>(sample_x - pixel_xrange/2 + j, sample_y - pixel_yrange + k);
+                    auto row = sample_x - pixel_xrange/2 + j;
+				      auto col = sample_y - pixel_yrange/2 + k;
+                    auto pixel = this->map.at<uchar>(row, col);
                     if(pixel != 255){
                         return true;
                     }
@@ -334,3 +345,61 @@ std::vector<point> rrtTree::backtracking(){
     std::reverse(point_set.begin(), point_set.end());
     return point_set;
 }
+
+
+// RRT*
+void rrtTree::addVertexAndCost(point x_new, point x_rand, int idx_min, double cost) {
+    // TODO
+    this->ptrTable[this->count] = new node;
+    node* node_toadd = this->ptrTable[this->count];
+    node_toadd->idx_parent = idx_min;
+    node_toadd->idx = this->count;
+    node_toadd->location = x_new;
+    node_toadd->rand = x_rand;
+    node_toadd->cost = cost;
+    this->count++;
+}
+
+double rrtTree::getC(point x1, point x2){
+    // Default cost of a point: distance between a point and its parent
+    // In general, Cost(p) = Cost(parent) + c(p, parent)
+    // This function returns c(x1,x2)
+    return sqrt((x1.x-x2.x)*(x1.x-x2.x) + (x1.y-x2.y)*(x1.y-x2.y));
+}
+
+
+void rrtTree::changeEdge(int idx, int idx_parent, double c){
+    this->ptrTable[idx]->idx_parent = idx_parent;
+    this->ptrTable[idx]->cost = this->ptrTable[idx_parent]->cost + c;
+    // c = getC(ptrTable[idx]->location, ptrTable[idx_parent]->location);
+}
+
+
+std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
+    std::vector<int> result;
+    for(auto i=0; i < this->count; i++){
+        auto dx = x_new.x - this->ptrTable[i]->location.x;
+        auto dy = x_new.y - this->ptrTable[i]->location.y;
+        auto len = sqrt(dx*dx + dy*dy);
+        if(len < radius){
+            if(isCollision(ptrTable[i]->location, x_new)){
+//                printf("\t%d", i);
+                result.push_back(i);
+            }
+        }
+    }
+//    printf("\n");
+    /* L2 norm 대신 x_new+(+-radius, +-radius) 범위의 모든 point를 리턴
+    for(int i=count-1; i>-1; i--){
+        point tmp_x = ptrTable[i]->location;
+        if(radius > max(tmp_x.x, x_new.x) - min(tmp_x.x, x_new.x)))
+            result.push_back(ptrTable[i]->location);
+    }
+    for(int j=result.size(); j>-1; j--){
+        if(!(radius > max(result[j].y, x_new.y) - min(result[j].y, x_new.y))))
+            result.erase(result.begin()+j);
+    }
+    */
+    return result;
+}
+
