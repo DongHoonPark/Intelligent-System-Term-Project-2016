@@ -240,8 +240,6 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
             if(len < MaxStep){
                 addVertexAndCost(this->x_goal, this->x_goal, idx_near_goal, len);
                 //optimizePath();
-                std::vector<point> path_a = backtracking();
-                visualizeTree(path_a);
                 return 0;
             }
         }
