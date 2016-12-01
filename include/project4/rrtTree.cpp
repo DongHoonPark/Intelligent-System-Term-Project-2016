@@ -306,15 +306,14 @@ bool rrtTree::isCollision(point x1, point x2) {
 
     double diff_x = x1_x_idx - x2_x_idx;
     double diff_y = x1_y_idx - x2_y_idx;
-    double len = sqrt(diff_x*diff_x + diff_y*diff_y);
-    int pnum = (int)len;//(len / (this->res));
+    int pnum = (int)(sqrt(diff_x*diff_x + diff_y*diff_y));
     if(pnum < 0){
         return false;
     }
     else{
         for(auto i=0; i< pnum; i++){
-            auto sample_x = (int)(((double)x1_x_idx) + (x2_x_idx - x1_x_idx) * i / pnum);
-            auto sample_y = (int)(((double)x1_y_idx) + (x2_y_idx - x1_y_idx) * i / pnum);
+            auto sample_x = x1_x_idx + (int)((x2_x_idx - x1_x_idx) * 1.0 * i / pnum);
+            auto sample_y = x1_y_idx + (int)((x2_y_idx - x1_y_idx) * 1.0 * i / pnum);
             for(auto j=0; j < pixel_xrange; j++){
                 for(auto k=0; k < pixel_yrange; k++){
                     auto row = sample_x - pixel_xrange/2 + j;
