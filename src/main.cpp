@@ -88,8 +88,8 @@ int main(int argc, char** argv){
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
                       std::string("/catkin_ws/src/project4/src/ground_truth_map_sin3.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
-    map_y_range = map.cols;
-    map_x_range = map.rows;
+    map_y_range = (map.cols == 0)? 800: map.cols;
+    map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
     map_origin_y = map_y_range/2.0 - 0.5;
     world_x_min = -10.0;
