@@ -87,7 +87,7 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin3.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = map.cols;
     map_x_range = map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
@@ -329,7 +329,14 @@ void generate_path_RRT()
 
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
 
-    rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 10, 2.5);
+
+    while(rrt->generateRRT(world_x_max, world_x_min, world_y_max, world_y_min, 10, 2.5)==-1){
+        ros::spinOnce();
+        current_pos.x = robot_pose.x;
+        current_pos.y = robot_pose.y;
+        dynamic_map = map.clone();
+        rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+    };
 //    rrt->generateRRT(20.0, -20.0, 20.0, -20.0, 10, 2.5);
 
     auto result = rrt->backtracking();
@@ -359,7 +366,7 @@ void set_waypoints()
     waypoint_candid[0].x = 5.0;
     waypoint_candid[0].y = -7.0;
     waypoint_candid[1].x = -3.0;
-    waypoint_candid[1].y = -6.0;
+    waypoint_candid[1].y = -3.0;
     waypoint_candid[2].x = -8.0;
     waypoint_candid[2].y = 8.0;
     waypoint_candid[3].x = 8.0;

@@ -28,7 +28,7 @@ private:
     point x_init, x_goal;
 
     cv::Mat map;
-    cv::Mat map_original;
+    cv::Mat* dynamic_map_ptr;
     double map_origin_x, map_origin_y;
     double res;
     node *ptrTable[20000];
@@ -59,4 +59,8 @@ public:
 
     // Updated part for RRT-Star
     int generateRRTst(double x_max, double x_min, double y_max, double y_min, int K, double MaxStep);
+
+    void setDynamicMap(cv::Mat* dm);
+    void resetDynamicMap();
+    cv::Mat map_original;
 };

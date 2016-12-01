@@ -116,7 +116,7 @@ void rrtTree::visualizeTree(std::vector<point> path){
     cv::namedWindow("Mapping");
     cv::Rect imgROI((int)Res*200,(int)Res*200,(int)Res*400,(int)Res*400);
     cv::imshow("Mapping", imgResult(imgROI));
-    cv::waitKey(30);
+    cv::waitKey(100);
 
 }
 
@@ -152,12 +152,17 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
     // TODO
     bool is_rrt_done = false;
     auto iter = 0;
+    auto generate_fail = 0;
     while(!is_rrt_done){
         iter++;
-        if(iter > 10000){
+        if(iter > 40000){
             //reset and replanning
             this->count = 0;
             iter = 0;
+            generate_fail++;
+            if(generate_fail > 5){
+                return -1;
+            }
         }
 
         point x_rand = randomState(x_max, x_min, y_max, y_min);
@@ -174,6 +179,7 @@ int rrtTree::generateRRT(double x_max, double x_min, double y_max, double y_min,
         if(len < 1.0 && count_tmp!=this->count){
             is_rrt_done = true;
             addVertex(x_goal, x_rand, idx_near);
+            return 0;
         }
     }
 }
@@ -296,8 +302,8 @@ int rrtTree::nearestNeighbor(point x_rand) {
 bool rrtTree::isCollision(point x1, point x2) {
     // TODO
     //Pioneer has about 40cm radius, 8px
-    int pixel_xrange = 3;
-    int pixel_yrange = 3;
+    int pixel_xrange = 4;
+    int pixel_yrange = 4;
 
     auto x1_x_idx = (int)(x1.x / (this->res) + this->map_origin_x);
     auto x1_y_idx = (int)(x1.y / (this->res) + this->map_origin_y);
@@ -307,7 +313,7 @@ bool rrtTree::isCollision(point x1, point x2) {
     double diff_x = x1_x_idx - x2_x_idx;
     double diff_y = x1_y_idx - x2_y_idx;
     double len = sqrt(diff_x*diff_x + diff_y*diff_y);
-    int pnum = (int)len;//(len / (this->res));
+    int pnum = (int)(len/this->res);//(len / (this->res));
     if(pnum < 0){
         return false;
     }
@@ -318,7 +324,7 @@ bool rrtTree::isCollision(point x1, point x2) {
             for(auto j=0; j < pixel_xrange; j++){
                 for(auto k=0; k < pixel_yrange; k++){
                     auto row = sample_x - pixel_xrange/2 + j;
-				      auto col = sample_y - pixel_yrange/2 + k;
+                    auto col = sample_y - pixel_yrange/2 + k;
                     auto pixel = this->map.at<uchar>(row, col);
                     if(pixel != 255){
                         return true;
@@ -403,3 +409,10 @@ std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
     return result;
 }
 
+void rrtTree::setDynamicMap(cv::Mat *dynamic_map) {
+    this->dynamic_map_ptr = dynamic_map;
+}
+
+void rrtTree::resetDynamicMap() {
+    *(this->dynamic_map_ptr) = this->map_original.clone();
+}
