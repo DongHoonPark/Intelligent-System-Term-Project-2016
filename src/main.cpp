@@ -238,10 +238,10 @@ int main(int argc, char** argv){
              */
             if(isCollision() && !is_safe){
                 printf("Is this collision?\n");
-                setcmdvel(0,0);
+                setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
-                ros::Duration(0.5).sleep();
+                ros::Duration(1).sleep();
 
                 // Rotate the robot to watch lookahead point right in front of it.
                 double rel_y = (path_RRT[look_ahead_idx].y - robot_pose.y);
@@ -252,10 +252,10 @@ int main(int argc, char** argv){
                 if(angle > M_PI) angle -= 2*M_PI;
                 if(angle < -M_PI) angle += 2*M_PI;
 
-                setcmdvel(0, 0.3*((angle > 0) - (angle < 0)));
+                setcmdvel(0, 0.3*(-(angle > 0) + (angle < 0)));
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
-                ros::Duration(3.3*fabs(angle)).sleep();
+                ros::Duration(1.66*fabs(angle)).sleep();
 
                 setcmdvel(0,0);
                 cmd_vel_pub.publish(cmd_vel);
