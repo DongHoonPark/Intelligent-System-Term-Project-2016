@@ -38,7 +38,7 @@ bool robot_pose_check();
 
 //way points
 std::vector<point> waypoints;
-int waypoint_idx = 0;
+int waypoint_idx = 1;
 
 point goalpoint;
 
@@ -62,6 +62,7 @@ void generate_path_RRT();
 void callback_state(gazebo_msgs::ModelStatesConstPtr msgs);
 void callback_points(sensor_msgs::PointCloud2ConstPtr msgs);
 void setcmdvel(double v, double w);
+bool isSafe(int idx);
 
 auto robot_pose_pitch = 0.0;
 auto robot_pose_roll = 0.0;
@@ -125,7 +126,7 @@ int main(int argc, char** argv){
     cv::imshow( "debug path", dynamic_map );
     cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
-
+    bool is_safe = false;
 //    image_transport::ImageTransport it(n);
 //    image_transport::Publisher dynamic_map_pub = it.advertise("/dynamic_map", 100);
 //    cv_bridge::CvImage dynamic_map_msg;
@@ -235,13 +236,35 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-            if(isCollision()){
-                setcmdvel(-0.1,0);
+            if(isCollision() && !is_safe){
+                printf("Is this collision?\n");
+                setcmdvel(0,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
-                ros::Duration(1.5).sleep();
+                ros::Duration(0.5).sleep();
 
+                // Rotate the robot to watch lookahead point right in front of it.
+                double rel_y = (path_RRT[look_ahead_idx].y - robot_pose.y);
+                double rel_x = (path_RRT[look_ahead_idx].x - robot_pose.x);
+                double angle = atan(rel_y/rel_x);
+                if(rel_x < 0) rel_y > 0? angle += M_PI: angle -= M_PI;
+                angle -= robot_pose.th;
+                if(angle > M_PI) angle -= 2*M_PI;
+                if(angle < -M_PI) angle += 2*M_PI;
+
+                setcmdvel(0, 0.3*((angle > 0) - (angle < 0)));
+                cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
+                ros::Duration(3.3*fabs(angle)).sleep();
+
+                setcmdvel(0,0);
+                cmd_vel_pub.publish(cmd_vel);
+                ros::spinOnce();
+
+                // Align and see if there's a "true" collision.
+                dynamic_mapping();
+                is_safe = isSafe(look_ahead_idx);
+
                 cv::circle(dynamic_map,
                            cv::Point(
                                    (int)(robot_pose.y / 0.05 + map_origin_y),
@@ -254,13 +277,15 @@ int main(int argc, char** argv){
                 cv::imshow("dm", dynamic_map);
                 cv::waitKey(3);
 
-                state = PATH_PLANNING;
+                if(!is_safe)
+                    state = PATH_PLANNING;
             }
             else{
                 if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
-
                     look_ahead_idx++;
+                    is_safe = false;
                     if(look_ahead_idx == path_RRT.size()){
+                        printf("Arrived at destination(Waypoint index: %d)\n", waypoint_idx);
                         waypoint_idx++;
                         if(waypoint_idx == waypoints.size()){
                             state = FINISH;
@@ -310,13 +335,19 @@ int main(int argc, char** argv){
              * pop up the opencv window
              * after drawing the dynamic map, transite the state to RUNNING state
              */
+            printf("Path planning to destination(Waypoint index: %d)\n", waypoint_idx);
+            setcmdvel(-0.1,0);
+            cmd_vel_pub.publish(cmd_vel);
+            ros::spinOnce();
+            ros::Duration(1.5).sleep();
+
             setcmdvel(0,0);
             cmd_vel_pub.publish(cmd_vel);
+//            dynamic_mapping();
 
-            dynamic_mapping();
+//            ros::spinOnce();
+//            control_rate.sleep();
 
-            ros::spinOnce();
-            control_rate.sleep();
             generate_path_RRT();
             state = RUNNING;
         } break;
@@ -364,7 +395,6 @@ void generate_path_RRT()
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
-//        dynamic_map = map.clone();
         auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 2.5);
         if(rrtResult == 0){
             break;
@@ -378,8 +408,8 @@ void generate_path_RRT()
         rrt->setDynamicMap(&dynamic_map);
     };
 
-
     auto result = rrt->backtracking();
+//    rrt->visualizeTree(result);
 
     while(look_ahead_idx < path_RRT.size()){
         path_RRT.pop_back();
@@ -402,15 +432,17 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
-    point waypoint_candid[3];
-    waypoint_candid[0].x = -9.0;
-    waypoint_candid[0].y = -8.0;
-    waypoint_candid[1].x = 3.5;
-    waypoint_candid[1].y = 0.0;
+    point waypoint_candid[4];
+    waypoint_candid[0].x = 5.0;
+    waypoint_candid[0].y = -7.0;
+    waypoint_candid[1].x = -3.0;
+    waypoint_candid[1].y = -6.0;
     waypoint_candid[2].x = -8.0;
     waypoint_candid[2].y = 8.0;
-    int order[] = {0,1,2};
-    int order_size = 3;
+    waypoint_candid[3].x = 8.0;
+    waypoint_candid[3].y = 8.0;
+    int order[] = {0,1,2,3};
+    int order_size = 4;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
@@ -452,7 +484,7 @@ bool isCollision()
         // return true if an obstacle is close enough to the robot's face
         if(pc_iter->z  < 0.7){
             if(fabs(pc_iter->x) < 0.7 && pc_iter->y < 1.0 && pc_iter->y >0.3){
-                 return true;
+                return true;
             }
         }
     }
@@ -518,4 +550,41 @@ bool robot_pose_check(){
     }
 }
 
+bool isSafe(int idx){
+    // Pioneer has radius about 40cm(= 8px).
+    int pixel_xrange = 1;
+    int pixel_yrange = 1;
 
+    auto x1_x_idx = (int)(robot_pose.x / res + map_origin_x);
+    auto x1_y_idx = (int)(robot_pose.y / res + map_origin_y);
+    auto x2_x_idx = (int)(path_RRT[idx].x / res + map_origin_x);
+    auto x2_y_idx = (int)(path_RRT[idx].y / res + map_origin_y);
+
+    double diff_x = x1_x_idx - x2_x_idx;
+    double diff_y = x1_y_idx - x2_y_idx;
+    double len = sqrt(diff_x*diff_x + diff_y*diff_y);
+    int pnum = (int)(len);
+    if(pnum < 0){
+        return true;
+    }
+    else{
+        for(auto i=0; i< pnum; i++){
+            auto sample_x = x1_x_idx + (int)((x2_x_idx - x1_x_idx) * 1.0 * i / pnum);
+            auto sample_y = x1_y_idx + (int)((x2_y_idx - x1_y_idx) * 1.0 * i / pnum);
+            for(auto j=0; j < pixel_xrange; j++){
+                for(auto k=0; k < pixel_yrange; k++){
+                    auto row = sample_x - pixel_xrange/2 + j;
+                    auto col = sample_y - pixel_yrange/2 + k;
+                    if(dynamic_map.cols == 0 || dynamic_map.rows == 0){
+                           printf("Error! (map.rows or map.cols is 0)\n"); return false;
+                       }
+                    auto pixel = dynamic_map.at<uchar>(row, col);
+                    if(pixel != 255){
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}

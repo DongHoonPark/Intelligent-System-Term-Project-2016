@@ -341,7 +341,7 @@ bool rrtTree::isCollision(point x1, point x2) {
                     auto row = sample_x - pixel_xrange/2 + j;
                     auto col = sample_y - pixel_yrange/2 + k;
                     if(this->map.cols == 0 || this->map.rows == 0){
-                    	   printf("Error! (map.rows or map.cols is 0)\n"); return false;
+                    	   printf("Error! (map.rows or map.cols is 0)\n"); return true;
                        }
                     auto pixel = this->map.at<uchar>(row, col);
                     if(pixel != 255){

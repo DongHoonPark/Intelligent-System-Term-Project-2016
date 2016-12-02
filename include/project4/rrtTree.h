@@ -35,7 +35,6 @@ private:
 
     cv::Mat addMargin(cv::Mat map, int margin);
     void visualizeTree();
-    void visualizeTree(std::vector<point> path);
     void addVertex(point x_new, point x_rand, int idx_near);
     int nearestNeighbor(point x_rand);
     bool isCollision(point x1, point x2);
@@ -60,6 +59,8 @@ public:
 
     // Updated part for RRT-Star
     int generateRRTst(double x_max, double x_min, double y_max, double y_min, int K, double MaxStep);
+
+    void visualizeTree(std::vector<point> path);
 
     int checkPoint(point tocheck);
 
