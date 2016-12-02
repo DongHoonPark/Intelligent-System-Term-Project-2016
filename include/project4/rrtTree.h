@@ -61,6 +61,8 @@ public:
     // Updated part for RRT-Star
     int generateRRTst(double x_max, double x_min, double y_max, double y_min, int K, double MaxStep);
 
+    int checkPoint(point tocheck);
+
     void setDynamicMap(cv::Mat* dm);
     void resetDynamicMap();
     cv::Mat map_original;

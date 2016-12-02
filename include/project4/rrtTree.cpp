@@ -194,9 +194,22 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
     double gamma = 5.0;
     auto iter = 0;
     auto generate_fail = 0;
+    if(checkPoint(this->root->location)!=0 ){
+
+        cv::circle(*this->dynamic_map_ptr,
+                   cv::Point(
+                           (int)(this->root->location.y / 0.05 + map_origin_y),
+                           (int)(this->root->location.x / 0.05 + map_origin_x)
+                   ),
+                   12,
+                   cv::Scalar(255, 255, 255),
+                   CV_FILLED);
+    }
+    cv::imshow("dm", *(this->dynamic_map_ptr));
+    cv::waitKey(10);
     while(1){
-        if(++iter > 40000){
-            if(++generate_fail > 5)
+        if(++iter > 60000){
+            if(++generate_fail > 3)
                 return -1;
             this->count = 1;
             iter = 0;
@@ -304,8 +317,8 @@ int rrtTree::nearestNeighbor(point x_rand) {
 bool rrtTree::isCollision(point x1, point x2) {
     // TODO
     //Pioneer has about 40cm radius, 8px
-    int pixel_xrange = 4;
-    int pixel_yrange = 4;
+    int pixel_xrange = 2;
+    int pixel_yrange = 2;
 
     auto x1_x_idx = (int)(x1.x / (this->res) + this->map_origin_x);
     auto x1_y_idx = (int)(x1.y / (this->res) + this->map_origin_y);
@@ -315,7 +328,7 @@ bool rrtTree::isCollision(point x1, point x2) {
     double diff_x = x1_x_idx - x2_x_idx;
     double diff_y = x1_y_idx - x2_y_idx;
     double len = sqrt(diff_x*diff_x + diff_y*diff_y);
-    int pnum = (int)(len/this->res);//(len / (this->res));
+    int pnum = (int)(len);//(len / (this->res));
     if(pnum < 0){
         return false;
     }
@@ -430,4 +443,31 @@ void rrtTree::setDynamicMap(cv::Mat *dynamic_map) {
 
 void rrtTree::resetDynamicMap() {
     *(this->dynamic_map_ptr) = this->map_original.clone();
+}
+
+int rrtTree::checkPoint(point check) {
+    //check some point and return error code if it is occupied
+    /*
+     * error code description
+     * code 0 : no error
+     * code 1 : point occupied
+     * code 2 : near point (<3px is occupied)
+     * code 3 : point is not occupied but it is isolated by occupied points
+     *
+     */
+
+    auto near = 2;
+
+    auto x_idx = (int)(check.x / (this->res) + this->map_origin_x);
+    auto y_idx = (int)(check.y / (this->res) + this->map_origin_y);
+    if(this->map.at<uchar>(x_idx, y_idx) != 255) return 1;
+    else {
+        for(auto i=0; i<near; i++){
+            for(auto j=0; j<near; j++){
+                if(this->map.at<uchar>(x_idx-near/2 + i, y_idx-near/2 + j) != 255) return 2;
+            }
+        }
+    }
+
+    return 0;
 }

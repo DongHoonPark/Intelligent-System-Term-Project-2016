@@ -67,6 +67,7 @@ auto robot_pose_pitch = 0.0;
 auto robot_pose_roll = 0.0;
 
 int look_ahead_idx = 0;
+auto back_step_flag = 0;
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "rrt_main");
@@ -87,7 +88,7 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
@@ -179,7 +180,7 @@ int main(int argc, char** argv){
                 model.request.reference_frame = "world";
                 model.request.initial_pose.position.x = path_RRT[i].x;
                 model.request.initial_pose.position.y = path_RRT[i].y;
-                model.request.initial_pose.position.z = 0.7;
+                model.request.initial_pose.position.z = 1.2;
                 model.request.initial_pose.orientation.w = 0.0;
                 model.request.initial_pose.orientation.x = 0.0;
                 model.request.initial_pose.orientation.y = 0.0;
@@ -238,11 +239,26 @@ int main(int argc, char** argv){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
-                ros::Rate(0.5).sleep();
+                ros::Duration(1.5).sleep();
+
+                ros::spinOnce();
+                cv::circle(dynamic_map,
+                           cv::Point(
+                                   (int)(robot_pose.y / 0.05 + map_origin_y),
+                                   (int)(robot_pose.x / 0.05 + map_origin_x)
+                           ),
+                           12,
+                           cv::Scalar(255, 255, 255),
+                           CV_FILLED);
+
+                cv::imshow("dm", dynamic_map);
+                cv::waitKey(3);
+
                 state = PATH_PLANNING;
             }
             else{
                 if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
+
                     look_ahead_idx++;
                     if(look_ahead_idx == path_RRT.size()){
                         waypoint_idx++;
@@ -271,6 +287,18 @@ int main(int argc, char** argv){
              */
 
             ros::spinOnce();
+
+            cv::circle(dynamic_map,
+                       cv::Point(
+                               (int)(robot_pose.y / 0.05 + map_origin_y),
+                               (int)(robot_pose.x / 0.05 + map_origin_x)
+                       ),
+                       6,
+                       cv::Scalar(255, 255, 255),
+                       CV_FILLED);
+
+            cv::imshow("dm", dynamic_map);
+            cv::waitKey(3);
             control_rate.sleep();
             ROS_INFO("%d", look_ahead_idx);
         } break;
@@ -330,14 +358,26 @@ void generate_path_RRT()
     }
 
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+    rrt->setDynamicMap(&dynamic_map);
 
-    while(rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 2.5)==-1){
+    while(true){
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
 //        dynamic_map = map.clone();
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 2.5);
+        if(rrtResult == 0){
+            break;
+        }
+//        else if(rrtResult == 2){
+//            back_step_flag = 1;
+//            look_ahead_idx--;
+//            return;
+//        }
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+        rrt->setDynamicMap(&dynamic_map);
     };
+
 
     auto result = rrt->backtracking();
 
@@ -411,7 +451,7 @@ bool isCollision()
         // robot_frame(x,y,z) = (pc_iter->z, -(pc_iter->x), -(pc_iter->y))
         // return true if an obstacle is close enough to the robot's face
         if(pc_iter->z  < 0.7){
-            if(fabs(pc_iter->x) < 1.0 && pc_iter->y < 2.0 && pc_iter->y >0.3){
+            if(fabs(pc_iter->x) < 0.7 && pc_iter->y < 1.0 && pc_iter->y >0.3){
                  return true;
             }
         }
@@ -476,4 +516,5 @@ bool robot_pose_check(){
         return false;
     }
 }
+
 
