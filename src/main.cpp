@@ -293,7 +293,7 @@ int main(int argc, char** argv){
                                (int)(robot_pose.y / 0.05 + map_origin_y),
                                (int)(robot_pose.x / 0.05 + map_origin_x)
                        ),
-                       6,
+                       10,
                        cv::Scalar(255, 255, 255),
                        CV_FILLED);
 
@@ -404,8 +404,8 @@ void set_waypoints()
 {
     point waypoint_candid[3];
     waypoint_candid[0].x = -9.0;
-    waypoint_candid[0].y = 1.0;
-    waypoint_candid[1].x = 3.0;
+    waypoint_candid[0].y = -8.0;
+    waypoint_candid[1].x = 3.5;
     waypoint_candid[1].y = 0.0;
     waypoint_candid[2].x = -8.0;
     waypoint_candid[2].y = 8.0;
