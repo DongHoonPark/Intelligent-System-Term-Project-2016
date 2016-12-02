@@ -317,8 +317,8 @@ int rrtTree::nearestNeighbor(point x_rand) {
 bool rrtTree::isCollision(point x1, point x2) {
     // TODO
     //Pioneer has about 40cm radius, 8px
-    int pixel_xrange = 2;
-    int pixel_yrange = 2;
+    int pixel_xrange = 1;
+    int pixel_yrange = 1;
 
     auto x1_x_idx = (int)(x1.x / (this->res) + this->map_origin_x);
     auto x1_y_idx = (int)(x1.y / (this->res) + this->map_origin_y);

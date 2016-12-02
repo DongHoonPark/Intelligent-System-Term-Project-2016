@@ -116,7 +116,7 @@ int main(int argc, char** argv){
     state = INIT;
     bool running = true;
     purePursuit pure_pursuit;
-    ros::Rate control_rate(10);
+    ros::Rate control_rate(30);
 
 
     cv::namedWindow( "debug path" );
@@ -144,53 +144,53 @@ int main(int argc, char** argv){
             look_ahead_idx = 0;
 
             //visualize path
-            for(int i = 0; i < path_RRT.size(); i++){
-                gazebo_msgs::SpawnModel model;
-                model.request.model_xml = std::string("<robot name=\"simple_ball\">") +
-                        std::string("<link name=\"ball\">") +
-                        std::string("<inertial>") +
-                        std::string("<mass value=\"1.0\" />") +
-                        std::string("<origin xyz=\"0 0 0\" />") +
-                        std::string("<inertia  ixx=\"1.0\" ixy=\"0.0\"  ixz=\"0.0\"  iyy=\"1.0\"  iyz=\"0.0\"  izz=\"1.0\" />") +
-                        std::string("</inertial>") +
-                        std::string("<visual>") +
-                        std::string("<origin xyz=\"0 0 0\" rpy=\"0 0 0\" />") +
-                        std::string("<geometry>") +
-                        std::string("<sphere radius=\"0.09\"/>") +
-                        std::string("</geometry>") +
-                        std::string("</visual>") +
-                        std::string("<collision>") +
-                        std::string("<origin xyz=\"0 0 0\" rpy=\"0 0 0\" />") +
-                        std::string("<geometry>") +
-                        std::string("<sphere radius=\"0\"/>") +
-                        std::string("</geometry>") +
-                        std::string("</collision>") +
-                        std::string("</link>") +
-                        std::string("<gazebo reference=\"ball\">") +
-                        std::string("<mu1>10</mu1>") +
-                        std::string("<mu2>10</mu2>") +
-                        std::string("<material>Gazebo/Blue</material>") +
-                        std::string("<turnGravityOff>true</turnGravityOff>") +
-                        std::string("</gazebo>") +
-                        std::string("</robot>");
-
-                std::ostringstream ball_name;
-                ball_name << i;
-                model.request.model_name = ball_name.str();
-                model.request.reference_frame = "world";
-                model.request.initial_pose.position.x = path_RRT[i].x;
-                model.request.initial_pose.position.y = path_RRT[i].y;
-                model.request.initial_pose.position.z = 1.2;
-                model.request.initial_pose.orientation.w = 0.0;
-                model.request.initial_pose.orientation.x = 0.0;
-                model.request.initial_pose.orientation.y = 0.0;
-                model.request.initial_pose.orientation.z = 0.0;
-
-                gazebo_spawn.call(model);
-
-                ros::spinOnce();
-                ros::Rate(200).sleep();
-            }
+//            for(int i = 0; i < path_RRT.size(); i++){
+//                gazebo_msgs::SpawnModel model;
+//                model.request.model_xml = std::string("<robot name=\"simple_ball\">") +
+//                        std::string("<link name=\"ball\">") +
+//                        std::string("<inertial>") +
+//                        std::string("<mass value=\"1.0\" />") +
+//                        std::string("<origin xyz=\"0 0 0\" />") +
+//                        std::string("<inertia  ixx=\"1.0\" ixy=\"0.0\"  ixz=\"0.0\"  iyy=\"1.0\"  iyz=\"0.0\"  izz=\"1.0\" />") +
+//                        std::string("</inertial>") +
+//                        std::string("<visual>") +
+//                        std::string("<origin xyz=\"0 0 0\" rpy=\"0 0 0\" />") +
+//                        std::string("<geometry>") +
+//                        std::string("<sphere radius=\"0.09\"/>") +
+//                        std::string("</geometry>") +
+//                        std::string("</visual>") +
+//                        std::string("<collision>") +
+//                        std::string("<origin xyz=\"0 0 0\" rpy=\"0 0 0\" />") +
+//                        std::string("<geometry>") +
+//                        std::string("<sphere radius=\"0\"/>") +
+//                        std::string("</geometry>") +
+//                        std::string("</collision>") +
+//                        std::string("</link>") +
+//                        std::string("<gazebo reference=\"ball\">") +
+//                        std::string("<mu1>10</mu1>") +
+//                        std::string("<mu2>10</mu2>") +
+//                        std::string("<material>Gazebo/Blue</material>") +
+//                        std::string("<turnGravityOff>true</turnGravityOff>") +
+//                        std::string("</gazebo>") +
+//                        std::string("</robot>");
+//
+//                std::ostringstream ball_name;
+//                ball_name << i;
+//                model.request.model_name = ball_name.str();
+//                model.request.reference_frame = "world";
+//                model.request.initial_pose.position.x = path_RRT[i].x;
+//                model.request.initial_pose.position.y = path_RRT[i].y;
+//                model.request.initial_pose.position.z = 1.2;
+//                model.request.initial_pose.orientation.w = 0.0;
+//                model.request.initial_pose.orientation.x = 0.0;
+//                model.request.initial_pose.orientation.y = 0.0;
+//                model.request.initial_pose.orientation.z = 0.0;
+//
+//                gazebo_spawn.call(model);
+//
+//                ros::spinOnce();
+//                ros::Rate(200).sleep();
+//            }
             printf("Spawn path\n");
 
             //initialize robot position
@@ -479,6 +479,7 @@ void dynamic_mapping()
         return;
     }
     ros::Duration(0.5).sleep();
+    ros::spinOnce();
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
@@ -496,7 +497,7 @@ void dynamic_mapping()
                                    pos_y,
                                    pos_x
                            ),
-                           4,
+                           2,
                            cv::Scalar(0, 0, 255),
                            CV_FILLED);
             }
