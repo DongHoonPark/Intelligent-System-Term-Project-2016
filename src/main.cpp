@@ -87,9 +87,9 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
-    map_y_range = map.cols;
-    map_x_range = map.rows;
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+    map_y_range = (map.cols == 0)? 800: map.cols;
+    map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
     map_origin_y = map_y_range/2.0 - 0.5;
     world_x_min = -10.0;
@@ -234,12 +234,11 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-
-
             if(isCollision()){
-
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
+                ros::spinOnce();
+                ros::Rate(0.5).sleep();
                 state = PATH_PLANNING;
             }
             else{
@@ -249,13 +248,13 @@ int main(int argc, char** argv){
                         waypoint_idx++;
                         if(waypoint_idx == waypoints.size()){
                             state = FINISH;
-                        	}
+                        }
                         else{
-                        		setcmdvel(0,0);
-                        		cmd_vel_pub.publish(cmd_vel);
+                            setcmdvel(0,0);
+                            cmd_vel_pub.publish(cmd_vel);
                             goalpoint = waypoints[waypoint_idx];
                             state = PATH_PLANNING;
-                        	}
+                        }
                     }
                 }
                 else{
@@ -283,6 +282,9 @@ int main(int argc, char** argv){
              * pop up the opencv window
              * after drawing the dynamic map, transite the state to RUNNING state
              */
+            setcmdvel(0,0);
+            cmd_vel_pub.publish(cmd_vel);
+
             dynamic_mapping();
 
             ros::spinOnce();
@@ -329,15 +331,13 @@ void generate_path_RRT()
 
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
 
-
-    while(rrt->generateRRT(world_x_max, world_x_min, world_y_max, world_y_min, 10, 2.5)==-1){
+    while(rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 2.5)==-1){
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
 //        dynamic_map = map.clone();
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     };
-//    rrt->generateRRT(20.0, -20.0, 20.0, -20.0, 10, 2.5);
 
     auto result = rrt->backtracking();
 
@@ -402,7 +402,6 @@ bool isCollision()
      * obstacle emerge in front of robot -> true
      * other wise -> false
      */
-
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
         return false;
@@ -412,13 +411,11 @@ bool isCollision()
         // robot_frame(x,y,z) = (pc_iter->z, -(pc_iter->x), -(pc_iter->y))
         // return true if an obstacle is close enough to the robot's face
         if(pc_iter->z  < 0.7){
-            double abs_y = fabs(pc_iter->x);
-            double abs_z = fabs(pc_iter->y);
-            if(abs_y < 1.0 && pc_iter->y < 2.0 && pc_iter->y >0.3)
-                return true;
+            if(fabs(pc_iter->x) < 1.0 && pc_iter->y < 2.0 && pc_iter->y >0.3){
+                 return true;
+            }
         }
     }
-
     return false;
 }
 
@@ -479,3 +476,4 @@ bool robot_pose_check(){
         return false;
     }
 }
+
