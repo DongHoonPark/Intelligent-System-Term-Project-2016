@@ -35,7 +35,6 @@ double world_y_max;
 
 void dynamic_mapping();
 bool robot_pose_check();
-bool isNewObject(double, double);
 
 //way points
 std::vector<point> waypoints;
@@ -57,7 +56,7 @@ pcl::PointCloud<pcl::PointXYZ> point_cloud;
 int state;
 
 //function definition
-int isCollision();
+bool isCollision();
 void set_waypoints();
 void generate_path_RRT();
 void callback_state(gazebo_msgs::ModelStatesConstPtr msgs);
@@ -119,11 +118,11 @@ int main(int argc, char** argv){
     ros::Rate control_rate(10);
 
 
-//    cv::namedWindow( "debug path" );
-//    cv::namedWindow( "dm" );// Create a window for display.
-//    cv::imshow( "dm", dynamic_map );
-//    cv::imshow( "debug path", dynamic_map );
-//    cv::waitKey(1000);                                          // Wait for a keystroke in the window
+    cv::namedWindow( "debug path" );
+    cv::namedWindow( "dm" );// Create a window for display.
+    cv::imshow( "dm", dynamic_map );
+    cv::imshow( "debug path", dynamic_map );
+    cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
 
 //    image_transport::ImageTransport it(n);
@@ -235,16 +234,11 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-        	int collision_side = isCollision();
             if(collision_side){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
                 ros::Rate(0.5).sleep();
-                setcmdvel(0, collision_side*0.2);
-                cmd_vel_pub.publish(cmd_vel);
-                ros::spinOnce();
-                ros::Rate(1).sleep();
                 state = PATH_PLANNING;
             }
             else{
@@ -403,7 +397,7 @@ void callback_points(sensor_msgs::PointCloud2ConstPtr msgs){
     pcl::fromROSMsg(*msgs,point_cloud);
 }
 
-int isCollision()
+bool isCollision()
 {
     //TODO
     /*
@@ -412,7 +406,7 @@ int isCollision()
      */
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
-        return 0;
+        return false;
     }
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
@@ -420,12 +414,11 @@ int isCollision()
         // return true if an obstacle is close enough to the robot's face
         if(pc_iter->z  < 0.7){
             if(fabs(pc_iter->x) < 1.0 && pc_iter->y < 2.0 && pc_iter->y >0.3){
-                if(isNewObject(pc_iter->z, -(pc_iter->x)))
-                	   return (pc_iter->x > 0)? -1: 1;
+                 return true;
             }
         }
     }
-    return 0;
+    return false;
 }
 
 void setcmdvel(double v, double w){
@@ -477,11 +470,3 @@ bool robot_pose_check(){
     }
 }
 
-bool isNewObject(double x, double y){
-	auto row = (int)((robot_pose.x + x*cos(robot_pose.th) + y*sin(robot_pose.th))/res + map_origin_x);
-	auto col = (int)((robot_pose.y + x*sin(robot_pose.th) - y*cos(robot_pose.th))/res + map_origin_y);
-	if(map.at<uchar>(row, col) == 255)
-		return true;
-	else
-		return false;
-}
