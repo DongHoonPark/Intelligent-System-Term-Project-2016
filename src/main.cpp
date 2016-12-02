@@ -87,7 +87,7 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = map.cols;
     map_x_range = map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
@@ -334,7 +334,7 @@ void generate_path_RRT()
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
-        dynamic_map = map.clone();
+//        dynamic_map = map.clone();
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     };
 //    rrt->generateRRT(20.0, -20.0, 20.0, -20.0, 10, 2.5);
@@ -362,17 +362,15 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
-    point waypoint_candid[4];
-    waypoint_candid[0].x = 5.0;
-    waypoint_candid[0].y = -7.0;
-    waypoint_candid[1].x = -3.0;
-    waypoint_candid[1].y = -3.0;
+    point waypoint_candid[3];
+    waypoint_candid[0].x = -9.0;
+    waypoint_candid[0].y = 1.0;
+    waypoint_candid[1].x = 3.0;
+    waypoint_candid[1].y = 0.0;
     waypoint_candid[2].x = -8.0;
     waypoint_candid[2].y = 8.0;
-    waypoint_candid[3].x = 8.0;
-    waypoint_candid[3].y = 8.0;
-    int order[] = {0,1,2,3};
-    int order_size = 4;
+    int order[] = {0,1,2};
+    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
@@ -443,6 +441,7 @@ void dynamic_mapping()
         ROS_INFO("robot pos is illegal!");
         return;
     }
+    ros::Duration(0.5).sleep();
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
@@ -454,7 +453,15 @@ void dynamic_mapping()
                 int pos_y = (int) (
                         (sin(robot_pose.th) * (pc_iter->z) - cos(robot_pose.th) * (pc_iter->x) + robot_pose.y) / res +
                         map_origin_y);
-                dynamic_map.at<uchar>(pos_x, pos_y) = 0;
+                //dynamic_map.at<uchar>(pos_x, pos_y) = 0;
+                cv::circle(dynamic_map,
+                           cv::Point(
+                                   pos_y,
+                                   pos_x
+                           ),
+                           4,
+                           cv::Scalar(0, 0, 255),
+                           CV_FILLED);
             }
         }
     }
@@ -464,8 +471,8 @@ void dynamic_mapping()
 }
 
 bool robot_pose_check(){
-    if(fabs(robot_pose_pitch) < M_PI/12
-       && fabs(robot_pose_roll) < M_PI/12){
+    if(fabs(robot_pose_pitch) < M_PI/24
+       && fabs(robot_pose_roll) < M_PI/24){
         return true;
     }
     else{

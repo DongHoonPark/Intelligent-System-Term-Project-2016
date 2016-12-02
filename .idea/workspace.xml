@@ -85,8 +85,8 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6085">
-              <caret line="88" column="40" selection-start-line="88" selection-start-column="40" selection-end-line="88" selection-end-column="40" />
+            <state relative-caret-position="-4820">
+              <caret line="93" column="41" selection-start-line="93" selection-start-column="41" selection-end-line="93" selection-end-column="41" />
               <folding>
                 <element signature="e#114#133#0" expanded="true" />
               </folding>
@@ -97,8 +97,8 @@
       <file leaf-file-name="waypoints" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/waypoints">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="10" column="24" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
+            <state relative-caret-position="252">
+              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="22" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -107,7 +107,7 @@
       <file leaf-file-name="rrtTree.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="711">
+            <state relative-caret-position="684">
               <caret line="64" column="25" selection-start-line="64" selection-start-column="25" selection-end-line="64" selection-end-column="25" />
               <folding />
             </state>
@@ -117,7 +117,7 @@
       <file leaf-file-name="random.tcc" pinned="false" current-in-tab="false">
         <entry file="file:///usr/include/c++/4.8/bits/random.tcc">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
+            <state relative-caret-position="18">
               <caret line="340" column="0" selection-start-line="340" selection-start-column="0" selection-end-line="340" selection-end-column="0" />
               <folding />
             </state>
@@ -127,8 +127,8 @@
       <file leaf-file-name="rrtTree.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4181">
-              <caret line="313" column="40" selection-start-line="313" selection-start-column="40" selection-end-line="313" selection-end-column="40" />
+            <state relative-caret-position="450">
+              <caret line="169" column="32" selection-start-line="169" selection-start-column="32" selection-end-line="169" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -727,12 +727,12 @@
       <workItem from="1480222774610" duration="19468000" />
       <workItem from="1480245128769" duration="4853000" />
       <workItem from="1480260345776" duration="766000" />
-      <workItem from="1480591371115" duration="4598000" />
+      <workItem from="1480591371115" duration="7699000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="33136000" />
+    <option name="totallyTimeSpent" value="36237000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1919" y="27" width="1922" height="1054" extended-state="6" />
@@ -771,7 +771,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="68" />
+      <option name="time" value="69" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -1092,44 +1092,44 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/waypoints">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="24" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/include/c++/4.8/bits/random.tcc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
+        <state relative-caret-position="18">
           <caret line="340" column="0" selection-start-line="340" selection-start-column="0" selection-end-line="340" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.h">
+    <entry file="file://$PROJECT_DIR$/src/waypoints">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="711">
-          <caret line="64" column="25" selection-start-line="64" selection-start-column="25" selection-end-line="64" selection-end-column="25" />
+        <state relative-caret-position="252">
+          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="22" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6085">
-          <caret line="88" column="40" selection-start-line="88" selection-start-column="40" selection-end-line="88" selection-end-column="40" />
+        <state relative-caret-position="-4820">
+          <caret line="93" column="41" selection-start-line="93" selection-start-column="41" selection-end-line="93" selection-end-column="41" />
           <folding>
             <element signature="e#114#133#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="684">
+          <caret line="64" column="25" selection-start-line="64" selection-start-column="25" selection-end-line="64" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4181">
-          <caret line="313" column="40" selection-start-line="313" selection-start-column="40" selection-end-line="313" selection-end-column="40" />
+        <state relative-caret-position="450">
+          <caret line="169" column="32" selection-start-line="169" selection-start-column="32" selection-end-line="169" selection-end-column="32" />
           <folding />
         </state>
       </provider>
