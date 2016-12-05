@@ -475,7 +475,7 @@ bool isCollision()
         // robot_frame(x,y,z) = (pc_iter->z, -(pc_iter->x), -(pc_iter->y))
         // return true if an obstacle is close enough to the robot's face
         if(pc_iter->z  < 0.7){
-            if(fabs(pc_iter->x) < 0.7 && pc_iter->y < 1.0 && pc_iter->y >0.3){
+            if(fabs(pc_iter->x) < 0.8 && pc_iter->y < 1.0 && pc_iter->y >0.3){
                  collision_point++;
             }
         }
