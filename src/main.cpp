@@ -89,7 +89,7 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
@@ -238,10 +238,11 @@ int main(int argc, char** argv){
              */
             if(isCollision() && !is_safe){
                 printf("Is this collision?\n");
-                setcmdvel(-0.1,0);
+                setcmdvel(0,0);
                 cmd_vel_pub.publish(cmd_vel);
+
+                dynamic_mapping();
                 ros::spinOnce();
-                ros::Duration(1).sleep();
 
                 // Rotate the robot to watch lookahead point right in front of it.
                 double rel_y = (path_RRT[look_ahead_idx].y - robot_pose.y);
@@ -257,13 +258,18 @@ int main(int argc, char** argv){
                 ros::spinOnce();
                 ros::Duration(1.66*fabs(angle)).sleep();
 
-                setcmdvel(0,0);
+                setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
+                ros::Duration(1.5).sleep();
+
+                setcmdvel(0,0);
+                cmd_vel_pub.publish(cmd_vel);
 
                 // Align and see if there's a "true" collision.
                 dynamic_mapping();
                 is_safe = isSafe(look_ahead_idx);
+                ros::spinOnce();
 
                 cv::circle(dynamic_map,
                            cv::Point(
@@ -432,17 +438,15 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
-    point waypoint_candid[4];
-    waypoint_candid[0].x = 5.0;
-    waypoint_candid[0].y = -7.0;
-    waypoint_candid[1].x = -3.0;
-    waypoint_candid[1].y = -6.0;
+    point waypoint_candid[3];
+    waypoint_candid[0].x = -6.0;
+    waypoint_candid[0].y = 0.0;
+    waypoint_candid[1].x = 3.0;
+    waypoint_candid[1].y = -8.0;
     waypoint_candid[2].x = -8.0;
-    waypoint_candid[2].y = 8.0;
-    waypoint_candid[3].x = 8.0;
-    waypoint_candid[3].y = 8.0;
-    int order[] = {0,1,2,3};
-    int order_size = 4;
+    waypoint_candid[2].y = 7.0;
+    int order[] = {0,1,2};
+    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
