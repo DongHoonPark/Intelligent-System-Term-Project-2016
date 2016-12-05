@@ -88,7 +88,7 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
@@ -239,7 +239,7 @@ int main(int argc, char** argv){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
-                ros::Duration(1.5).sleep();
+                ros::Duration(3).sleep();
 
                 ros::spinOnce();
                 cv::circle(dynamic_map,
@@ -369,11 +369,23 @@ void generate_path_RRT()
         if(rrtResult == 0){
             break;
         }
-//        else if(rrtResult == 2){
-//            back_step_flag = 1;
-//            look_ahead_idx--;
-//            return;
-//        }
+        else if(rrtResult == 2){
+            ros::spinOnce();
+            current_pos.x = robot_pose.x;
+            current_pos.y = robot_pose.y;
+                    cv::circle(dynamic_map,
+                   cv::Point(
+                           (int)(current_pos.y / 0.05 + map_origin_y),
+                           (int)(current_pos.x / 0.05 + map_origin_x)
+                   ),
+                   20,
+                   cv::Scalar(255, 0, 255),
+                   CV_FILLED);
+
+            cv::imshow("dm", dynamic_map);
+            cv::waitKey(30);
+            setcmdvel(-0.1,0);
+        }
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
         rrt->setDynamicMap(&dynamic_map);
     };
@@ -402,15 +414,26 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
+    // scenario 1 sample way points
     point waypoint_candid[3];
-    waypoint_candid[0].x = -9.0;
-    waypoint_candid[0].y = -8.0;
-    waypoint_candid[1].x = 3.5;
-    waypoint_candid[1].y = 0.0;
+    waypoint_candid[0].x = -6.0;
+    waypoint_candid[0].y = 0.0;
+    waypoint_candid[1].x = 3.0;
+    waypoint_candid[1].y = 1.0;
     waypoint_candid[2].x = -8.0;
-    waypoint_candid[2].y = 8.0;
+    waypoint_candid[2].y = 7.0;
     int order[] = {0,1,2};
     int order_size = 3;
+//
+//    point waypoint_candid[3];
+//    waypoint_candid[0].x = -5.0;
+//    waypoint_candid[0].y = -4.0;
+//    waypoint_candid[1].x = 5.0;
+//    waypoint_candid[1].y = 6.0;
+//    waypoint_candid[2].x = -8.0;
+//    waypoint_candid[2].y = 8.0;
+//    int order[] = {0,1,2};
+//    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
@@ -446,15 +469,19 @@ bool isCollision()
         ROS_INFO("robot pos is illegal!");
         return false;
     }
+    auto collision_point = 0;
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // robot_frame(x,y,z) = (pc_iter->z, -(pc_iter->x), -(pc_iter->y))
         // return true if an obstacle is close enough to the robot's face
         if(pc_iter->z  < 0.7){
             if(fabs(pc_iter->x) < 0.7 && pc_iter->y < 1.0 && pc_iter->y >0.3){
-                 return true;
+                 collision_point++;
             }
         }
+    }
+    if(collision_point > 20){
+        return true;
     }
     return false;
 }

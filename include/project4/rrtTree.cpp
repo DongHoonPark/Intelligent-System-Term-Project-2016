@@ -191,22 +191,32 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
      * d = dimension of point
      * gamma = Heuristic parameter
      */
-    double gamma = 5.0;
+    double gamma = 3.0;
     auto iter = 0;
     auto generate_fail = 0;
     if(checkPoint(this->root->location)!=0 ){
-
-        cv::circle(*this->dynamic_map_ptr,
-                   cv::Point(
-                           (int)(this->root->location.y / 0.05 + map_origin_y),
-                           (int)(this->root->location.x / 0.05 + map_origin_x)
-                   ),
-                   12,
-                   cv::Scalar(255, 255, 255),
-                   CV_FILLED);
+//
+//        cv::circle(*this->dynamic_map_ptr,
+//                   cv::Point(
+//                           (int)(this->root->location.y / 0.05 + map_origin_y),
+//                           (int)(this->root->location.x / 0.05 + map_origin_x)
+//                   ),
+//                   12,
+//                   cv::Scalar(255, 255, 255),
+//                   CV_FILLED);
+//        auto erase_area = 8;
+//        for(auto i=0; i< erase_area; i++){
+//            for(auto j=0; j<erase_area; j++){
+//                this->dynamic_map_ptr->at<uchar>(
+//                        (int)(this->root->location.x / 0.05 + map_origin_x)-erase_area/2+i,
+//                        (int)(this->root->location.y / 0.05 + map_origin_y)-erase_area/2+j
+//                ) = 255;
+//            }
+//        }
+        return 2;
     }
     cv::imshow("dm", *(this->dynamic_map_ptr));
-    cv::waitKey(10);
+    cv::waitKey(30);
     while(1){
         if(++iter > 60000){
             if(++generate_fail > 3)
@@ -334,12 +344,12 @@ bool rrtTree::isCollision(point x1, point x2) {
     }
     else{
         for(auto i=0; i< pnum; i++){
-            auto sample_x = x1_x_idx + (int)((x2_x_idx - x1_x_idx) * 1.0 * i / pnum);
-            auto sample_y = x1_y_idx + (int)((x2_y_idx - x1_y_idx) * 1.0 * i / pnum);
+            auto sample_x = x1_x_idx + ((x2_x_idx - x1_x_idx) * 1.0 * i / (double)pnum);
+            auto sample_y = x1_y_idx + ((x2_y_idx - x1_y_idx) * 1.0 * i / (double)pnum);
             for(auto j=0; j < pixel_xrange; j++){
                 for(auto k=0; k < pixel_yrange; k++){
-                    auto row = sample_x - pixel_xrange/2 + j;
-                    auto col = sample_y - pixel_yrange/2 + k;
+                    auto row = (int)(sample_x - pixel_xrange/2.0 + j);
+                    auto col = (int)(sample_y - pixel_yrange/2.0 + k);
                     if(this->map.cols == 0 || this->map.rows == 0){
                     	   printf("Error! (map.rows or map.cols is 0)\n"); return false;
                        }
