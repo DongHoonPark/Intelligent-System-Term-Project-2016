@@ -6,7 +6,12 @@
 #define PATH_PLANNING 3
 #define FINISH -1
 
+#define MODE_DYNAMIC 1
+
+
 #include <unistd.h>
+#include <iostream>
+
 #include <ros/ros.h>
 #include <gazebo_msgs/SpawnModel.h>
 #include <gazebo_msgs/SetModelState.h>
@@ -17,6 +22,8 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <cv_bridge/cv_bridge.h>
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include <pwd.h>
 #include <image_transport/image_transport.h>
 
@@ -107,6 +114,21 @@ int main(int argc, char** argv){
     //Temp goalpoint
     goalpoint = waypoints[1];
     dynamic_map = map.clone();
+    cv::Mat dynamic_map_circledetection = dynamic_map.clone();
+
+    if(MODE_DYNAMIC){
+        cv::GaussianBlur(dynamic_map, dynamic_map_circledetection, cv::Size(3, 3), 2, 2 );
+        std::vector<cv::Vec3f> circles;
+        cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
+
+        for( size_t i = 0; i < circles.size(); i++ )
+        {
+            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+
+            // circle center
+            cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
+        }
+    }
 
     // RRT
     generate_path_RRT();
@@ -225,7 +247,7 @@ int main(int argc, char** argv){
             ros::Rate(0.33).sleep();
             printf("Initialize ROBOT\n");
 
-            dynamic_map = map.clone();
+            //dynamic_map = map.clone();
 
             state = RUNNING;
         } break;
@@ -414,26 +436,26 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
-    // scenario 1 sample way points
-    point waypoint_candid[3];
-    waypoint_candid[0].x = -6.0;
-    waypoint_candid[0].y = 0.0;
-    waypoint_candid[1].x = 3.0;
-    waypoint_candid[1].y = 1.0;
-    waypoint_candid[2].x = -8.0;
-    waypoint_candid[2].y = 7.0;
-    int order[] = {0,1,2};
-    int order_size = 3;
-//
+//    // scenario 1 sample way points
 //    point waypoint_candid[3];
-//    waypoint_candid[0].x = -5.0;
-//    waypoint_candid[0].y = -4.0;
-//    waypoint_candid[1].x = 5.0;
-//    waypoint_candid[1].y = 6.0;
+//    waypoint_candid[0].x = -6.0;
+//    waypoint_candid[0].y = 0.0;
+//    waypoint_candid[1].x = 3.0;
+//    waypoint_candid[1].y = 1.0;
 //    waypoint_candid[2].x = -8.0;
-//    waypoint_candid[2].y = 8.0;
+//    waypoint_candid[2].y = 7.0;
 //    int order[] = {0,1,2};
 //    int order_size = 3;
+
+    point waypoint_candid[3];
+    waypoint_candid[0].x = -5.0;
+    waypoint_candid[0].y = -4.0;
+    waypoint_candid[1].x = 5.0;
+    waypoint_candid[1].y = 6.0;
+    waypoint_candid[2].x = -8.0;
+    waypoint_candid[2].y = 8.0;
+    int order[] = {0,1,2};
+    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
@@ -467,6 +489,7 @@ bool isCollision()
      */
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
+        setcmdvel(-0.1,0);
         return false;
     }
     auto collision_point = 0;
@@ -480,7 +503,7 @@ bool isCollision()
             }
         }
     }
-    if(collision_point > 20){
+    if(collision_point > 10){
         return true;
     }
     return false;
@@ -503,6 +526,7 @@ void dynamic_mapping()
     */
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
+        setcmdvel(-0.1,0);
         return;
     }
     ros::Duration(0.5).sleep();

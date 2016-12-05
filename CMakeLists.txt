@@ -179,3 +179,9 @@ target_link_libraries(project4
    ${catkin_LIBRARIES}
    ${PCL_LIBRARIES}
 )
+
+add_executable(cf src/circle_finder.cpp )
+target_link_libraries(cf
+        ${catkin_LIBRARIES}
+        ${PCL_LIBRARIES}
+        )
