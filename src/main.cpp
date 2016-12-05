@@ -436,26 +436,26 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
-//    // scenario 1 sample way points
-//    point waypoint_candid[3];
-//    waypoint_candid[0].x = -6.0;
-//    waypoint_candid[0].y = 0.0;
-//    waypoint_candid[1].x = 3.0;
-//    waypoint_candid[1].y = 1.0;
-//    waypoint_candid[2].x = -8.0;
-//    waypoint_candid[2].y = 7.0;
-//    int order[] = {0,1,2};
-//    int order_size = 3;
-
+    // scenario 1 sample way points
     point waypoint_candid[3];
-    waypoint_candid[0].x = -5.0;
-    waypoint_candid[0].y = -4.0;
-    waypoint_candid[1].x = 5.0;
-    waypoint_candid[1].y = 6.0;
+    waypoint_candid[0].x = -6.0;
+    waypoint_candid[0].y = 0.0;
+    waypoint_candid[1].x = 3.0;
+    waypoint_candid[1].y = 1.0;
     waypoint_candid[2].x = -8.0;
-    waypoint_candid[2].y = 8.0;
+    waypoint_candid[2].y = 7.0;
     int order[] = {0,1,2};
     int order_size = 3;
+
+//    point waypoint_candid[3];
+//    waypoint_candid[0].x = -5.0;
+//    waypoint_candid[0].y = -4.0;
+//    waypoint_candid[1].x = 5.0;
+//    waypoint_candid[1].y = 6.0;
+//    waypoint_candid[2].x = -8.0;
+//    waypoint_candid[2].y = 8.0;
+//    int order[] = {0,1,2};
+//    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
