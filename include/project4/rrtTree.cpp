@@ -10,7 +10,8 @@ rrtTree::rrtTree(point x_init, point x_goal, cv::Mat map, double map_origin_x, d
     this->x_init = x_init;
     this->x_goal = x_goal;
     this->map_original = map.clone();
-    this->map = addMargin(map, margin);
+    //this->map = addMargin(map, margin);
+    this->map = map.clone();
     this->map_origin_x = map_origin_x;
     this->map_origin_y = map_origin_y;
     this->res = res;
@@ -327,8 +328,8 @@ int rrtTree::nearestNeighbor(point x_rand) {
 bool rrtTree::isCollision(point x1, point x2) {
     // TODO
     //Pioneer has about 40cm radius, 8px
-    int pixel_xrange = 1;
-    int pixel_yrange = 1;
+    int pixel_xrange = 2;
+    int pixel_yrange = 2;
 
     auto x1_x_idx = (int)(x1.x / (this->res) + this->map_origin_x);
     auto x1_y_idx = (int)(x1.y / (this->res) + this->map_origin_y);
