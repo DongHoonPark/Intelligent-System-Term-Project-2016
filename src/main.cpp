@@ -11,8 +11,13 @@
 
 #include <unistd.h>
 #include <iostream>
-
 #include <ros/ros.h>
+
+// Contest
+#include <geometry_msgs/Twist.h>
+#include "geometry_msgs/Pose2D.h"
+#include "geometry_msgs/Pose.h"
+
 #include <gazebo_msgs/SpawnModel.h>
 #include <gazebo_msgs/SetModelState.h>
 #include <gazebo_msgs/ModelStates.h>
@@ -66,6 +71,7 @@ int state;
 bool isCollision();
 void set_waypoints();
 void generate_path_RRT();
+void poseCallback(const geometry_msgs::Pose2D::ConstPtr& msgs );    // Contest
 void callback_state(gazebo_msgs::ModelStatesConstPtr msgs);
 void callback_points(sensor_msgs::PointCloud2ConstPtr msgs);
 void setcmdvel(double v, double w);
@@ -81,9 +87,14 @@ int main(int argc, char** argv){
     ros::NodeHandle n;
 
     // Initialize topics
+    ros::Subscriber gazebo_pose_sub = n.subscribe("server_msg",15,poseCallback);
+    ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",100);
+    ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points",100, callback_points);
+    /*
     ros::Subscriber gazebo_pose_sub = n.subscribe("/gazebo/model_states",1,callback_state);
     ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",1);
     ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points",1,callback_points);
+     */
     ros::ServiceClient gazebo_spawn = n.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_urdf_model");
     ros::ServiceClient gazebo_set = n.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
     printf("Initialize topics\n");
@@ -95,16 +106,26 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/contest2016.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+//                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
+    map_origin_x = 250.0 - 0.5;
+    map_origin_y = 100.0 - 0.5;
+    world_x_min = -2500.0;
+    world_x_max = 2500.0;
+    world_y_min = -1000.0;
+    world_y_max = 3500.0;
+    res = 10;
+    /*
     map_origin_x = map_x_range/2.0 - 0.5;
     map_origin_y = map_y_range/2.0 - 0.5;
-    world_x_min = -1.0;	// -10.0;
-    world_x_max = 2.0;	// 10.0;
-    world_y_min = -2.0;	// -10.0;
-    world_y_max = 2.0; 	// 10.0;
-    res = 0.01;			// 0.05;
+    world_x_min = -1.0;
+    world_x_max = 2.0;
+    world_y_min = -2.0;
+    world_y_max = 2.0;
+    res = 0.01;
+     */
     printf("Load map\n");
 
     // Set Way Points
@@ -155,8 +176,18 @@ int main(int argc, char** argv){
     state = INIT;
     bool running = true;
     purePursuit pure_pursuit;
+    ros::Rate control_rate(10);
+    /*
     ros::Rate control_rate(30);
-
+     */
+    ros::spinOnce();
+    control_rate.sleep();
+    control_rate.sleep();
+    control_rate.sleep();
+    ros::spinOnce();
+    control_rate.sleep();
+    control_rate.sleep();
+    control_rate.sleep();
 
     cv::namedWindow( "debug path" );
     cv::namedWindow( "dm" );// Create a window for display.
@@ -186,6 +217,7 @@ int main(int argc, char** argv){
         case INIT: {
             look_ahead_idx = 0;
 
+            /*
             //visualize path
 //            for(int i = 0; i < path_RRT.size(); i++){
 //                gazebo_msgs::SpawnModel model;
@@ -269,6 +301,7 @@ int main(int argc, char** argv){
             printf("Initialize ROBOT\n");
 
             //dynamic_map = map.clone();
+*/
 
             state = RUNNING;
         } break;
@@ -492,6 +525,14 @@ void set_waypoints()
 }
 
 
+void poseCallback(const geometry_msgs::Pose2D::ConstPtr& msgs) {
+    robot_pose.x = msgs->x;
+    robot_pose.y = msgs->y;
+    robot_pose.th = msgs->theta;
+    return;
+}
+
+
 void callback_state(gazebo_msgs::ModelStatesConstPtr msgs){
     for(int i; i < msgs->name.size(); i++){
         if(std::strcmp(msgs->name[i].c_str(),"RosAria") == 0){
@@ -544,7 +585,7 @@ void setcmdvel(double v, double w){
     cmd_vel.linear.z = 0.0;
     cmd_vel.angular.x = 0.0;
     cmd_vel.angular.y = 0.0;
-    cmd_vel.angular.z = -w;
+    cmd_vel.angular.z = w;
 }
 
 void dynamic_mapping()
