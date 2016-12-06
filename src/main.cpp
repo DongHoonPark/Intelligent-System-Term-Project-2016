@@ -95,16 +95,16 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
     map_origin_y = map_y_range/2.0 - 0.5;
-    world_x_min = -10.0;
-    world_x_max = 10.0;
-    world_y_min = -10.0;
-    world_y_max = 10.0;
-    res = 0.05;
+    world_x_min = -1.0;	// -10.0;
+    world_x_max = 2.0;	// 10.0;
+    world_y_min = -2.0;	// -10.0;
+    world_y_max = 2.0; 	// 10.0;
+    res = 0.01;			// 0.05;
     printf("Load map\n");
 
     // Set Way Points
@@ -147,6 +147,10 @@ int main(int argc, char** argv){
     cv::imshow( "debug path", dynamic_map );
     cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dist(0,1);
 
 //    image_transport::ImageTransport it(n);
 //    image_transport::Publisher dynamic_map_pub = it.advertise("/dynamic_map", 100);
@@ -213,7 +217,7 @@ int main(int argc, char** argv){
 //                ros::spinOnce();
 //                ros::Rate(200).sleep();
 //            }
-            printf("Spawn path\n");
+//            printf("Spawn path\n");
 
             //initialize robot position
             geometry_msgs::Pose model_pose;
@@ -257,6 +261,7 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
+//            if(dist(gen) > 1.00) dynamic_mapping();
             if(isCollision()){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
@@ -266,8 +271,8 @@ int main(int argc, char** argv){
                 ros::spinOnce();
                 cv::circle(dynamic_map,
                            cv::Point(
-                                   (int)(robot_pose.y / 0.05 + map_origin_y),
-                                   (int)(robot_pose.x / 0.05 + map_origin_x)
+                                   (int)(robot_pose.y / res + map_origin_y),
+                                   (int)(robot_pose.x / res + map_origin_x)
                            ),
                            12,
                            cv::Scalar(255, 255, 255),
@@ -312,8 +317,8 @@ int main(int argc, char** argv){
 
             cv::circle(dynamic_map,
                        cv::Point(
-                               (int)(robot_pose.y / 0.05 + map_origin_y),
-                               (int)(robot_pose.x / 0.05 + map_origin_x)
+                               (int)(robot_pose.y / res + map_origin_y),
+                               (int)(robot_pose.x / res + map_origin_x)
                        ),
                        10,
                        cv::Scalar(255, 255, 255),
@@ -397,8 +402,8 @@ void generate_path_RRT()
             current_pos.y = robot_pose.y;
                     cv::circle(dynamic_map,
                    cv::Point(
-                           (int)(current_pos.y / 0.05 + map_origin_y),
-                           (int)(current_pos.x / 0.05 + map_origin_x)
+                           (int)(current_pos.y / res + map_origin_y),
+                           (int)(current_pos.x / res + map_origin_x)
                    ),
                    20,
                    cv::Scalar(255, 0, 255),
@@ -423,8 +428,8 @@ void generate_path_RRT()
     for(auto i=0; i<path_RRT.size(); i++){
         cv::circle(dynamic_map_with_path,
             cv::Point(
-                (int)(path_RRT[i].y / 0.05 + map_origin_y),
-                (int)(path_RRT[i].x / 0.05 + map_origin_x)
+                (int)(path_RRT[i].y / res + map_origin_y),
+                (int)(path_RRT[i].x / res + map_origin_x)
              ),
             10,
             cv::Scalar(0, 0, 255),
@@ -436,26 +441,31 @@ void generate_path_RRT()
 
 void set_waypoints()
 {
-    // scenario 1 sample way points
-    point waypoint_candid[3];
+	point waypoint_candid[3];
+	waypoint_candid[0].x = 1.5;
+	waypoint_candid[0].y = -1.5;
+	waypoint_candid[1].x = 1.5;
+	waypoint_candid[1].y = 1.5;
+	waypoint_candid[2].x = -0.5;
+	waypoint_candid[2].y = -1.5;
+
+    /* scenario 1 sample way points
     waypoint_candid[0].x = -6.0;
     waypoint_candid[0].y = 0.0;
     waypoint_candid[1].x = 3.0;
     waypoint_candid[1].y = 1.0;
     waypoint_candid[2].x = -8.0;
     waypoint_candid[2].y = 7.0;
+
+    waypoint_candid[0].x = -5.0;
+    waypoint_candid[0].y = -4.0;
+    waypoint_candid[1].x = 5.0;
+    waypoint_candid[1].y = 6.0;
+    waypoint_candid[2].x = -8.0;
+    waypoint_candid[2].y = 8.0;
+    */
     int order[] = {0,1,2};
     int order_size = 3;
-
-//    point waypoint_candid[3];
-//    waypoint_candid[0].x = -5.0;
-//    waypoint_candid[0].y = -4.0;
-//    waypoint_candid[1].x = 5.0;
-//    waypoint_candid[1].y = 6.0;
-//    waypoint_candid[2].x = -8.0;
-//    waypoint_candid[2].y = 8.0;
-//    int order[] = {0,1,2};
-//    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);
