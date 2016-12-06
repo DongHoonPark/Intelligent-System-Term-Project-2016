@@ -30,6 +30,7 @@
 //map spec
 cv::Mat map;
 cv::Mat dynamic_map; //use this variable at dynamic mapping
+cv::Mat display_map;
 double res;
 int map_y_range;
 int map_x_range;
@@ -114,6 +115,7 @@ int main(int argc, char** argv){
     //Temp goalpoint
     goalpoint = waypoints[1];
     dynamic_map = map.clone();
+    display_map = map.clone();
     cv::Mat dynamic_map_circledetection = dynamic_map.clone();
 
     if(MODE_DYNAMIC){
@@ -143,8 +145,8 @@ int main(int argc, char** argv){
 
     cv::namedWindow( "debug path" );
     cv::namedWindow( "dm" );// Create a window for display.
-    cv::imshow( "dm", dynamic_map );
-    cv::imshow( "debug path", dynamic_map );
+    cv::imshow( "dm", display_map );
+    cv::imshow( "debug path", display_map );
     cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
 
@@ -213,7 +215,7 @@ int main(int argc, char** argv){
 //                ros::spinOnce();
 //                ros::Rate(200).sleep();
 //            }
-            printf("Spawn path\n");
+//            printf("Spawn path\n");
 
             //initialize robot position
             geometry_msgs::Pose model_pose;
@@ -246,8 +248,6 @@ int main(int argc, char** argv){
             ros::spinOnce();
             ros::Rate(0.33).sleep();
             printf("Initialize ROBOT\n");
-
-            //dynamic_map = map.clone();
 
             state = RUNNING;
         } break;
@@ -318,8 +318,16 @@ int main(int argc, char** argv){
                        10,
                        cv::Scalar(255, 255, 255),
                        CV_FILLED);
+            cv::circle(display_map,
+                       cv::Point(
+                               (int)(robot_pose.y / 0.05 + map_origin_y),
+                               (int)(robot_pose.x / 0.05 + map_origin_x)
+                       ),
+                       10,
+                       cv::Scalar(255, 255, 255),
+                       CV_FILLED);
 
-            cv::imshow("dm", dynamic_map);
+            cv::imshow("dm", display_map);
             cv::waitKey(3);
             control_rate.sleep();
             ROS_INFO("%d", look_ahead_idx);
@@ -404,8 +412,8 @@ void generate_path_RRT()
                    cv::Scalar(255, 0, 255),
                    CV_FILLED);
 
-            cv::imshow("dm", dynamic_map);
-            cv::waitKey(30);
+//            cv::imshow("dm", dynamic_map);
+//            cv::waitKey(30);
             setcmdvel(-0.1,0);
         }
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
@@ -419,9 +427,9 @@ void generate_path_RRT()
         path_RRT.pop_back();
     }
     path_RRT.insert(path_RRT.end(), result.begin(), result.end());
-    cv::Mat dynamic_map_with_path = dynamic_map.clone();
+    cv::Mat display_map_with_path = display_map.clone();
     for(auto i=0; i<path_RRT.size(); i++){
-        cv::circle(dynamic_map_with_path,
+        cv::circle(display_map_with_path,
             cv::Point(
                 (int)(path_RRT[i].y / 0.05 + map_origin_y),
                 (int)(path_RRT[i].x / 0.05 + map_origin_x)
@@ -430,7 +438,7 @@ void generate_path_RRT()
             cv::Scalar(0, 0, 255),
             CV_FILLED);
     }
-    cv::imshow("debug path", dynamic_map_with_path);
+    cv::imshow("debug path", display_map_with_path);
     cv::waitKey(30);
 }
 
@@ -529,7 +537,7 @@ void dynamic_mapping()
         setcmdvel(-0.1,0);
         return;
     }
-    ros::Duration(0.5).sleep();
+    ros::Duration(0.25).sleep();
     ros::spinOnce();
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
@@ -551,11 +559,19 @@ void dynamic_mapping()
                            2,
                            cv::Scalar(0, 0, 255),
                            CV_FILLED);
+                cv::circle(display_map,
+                           cv::Point(
+                                   pos_y,
+                                   pos_x
+                           ),
+                           2,
+                           cv::Scalar(0, 0, 255),
+                           CV_FILLED);
             }
         }
     }
 
-    cv::imshow("dm", dynamic_map);
+    cv::imshow("dm", display_map);
     cv::waitKey(10);
 }
 

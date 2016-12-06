@@ -215,7 +215,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
 //        }
         return 2;
     }
-    cv::imshow("dm", *(this->dynamic_map_ptr));
+//    cv::imshow("dm", *(this->dynamic_map_ptr));
     cv::waitKey(30);
     while(1){
         if(++iter > 60000){
