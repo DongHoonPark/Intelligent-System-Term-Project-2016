@@ -61,7 +61,13 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3ebc24ea-ec65-4681-af91-f083f103dfe3" name="Default" comment="" />
+    <list default="true" id="3ebc24ea-ec65-4681-af91-f083f103dfe3" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/project4/purePursuit.cpp" afterPath="$PROJECT_DIR$/include/project4/purePursuit.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/project4/rrtTree.cpp" afterPath="$PROJECT_DIR$/include/project4/rrtTree.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/circle_finder.cpp" afterPath="$PROJECT_DIR$/src/circle_finder.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
+    </list>
     <ignored path="project4.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -83,8 +89,8 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3332">
-              <caret line="307" column="13" selection-start-line="307" selection-start-column="13" selection-end-line="307" selection-end-column="13" />
+            <state relative-caret-position="470">
+              <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
               <folding>
                 <element signature="e#139#158#0" expanded="true" />
               </folding>
@@ -102,8 +108,8 @@
       <file leaf-file-name="circle_finder.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/circle_finder.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="49" column="4" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="4" />
+            <state relative-caret-position="470">
+              <caret line="63" column="4" selection-start-line="63" selection-start-column="4" selection-end-line="63" selection-end-column="4" />
               <folding>
                 <element signature="e#48#86#0" expanded="true" />
               </folding>
@@ -165,7 +171,7 @@
         <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="238">
-              <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+              <caret line="19" column="20" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
               <folding />
             </state>
           </provider>
@@ -796,12 +802,12 @@
       <workItem from="1480904161979" duration="2159000" />
       <workItem from="1480906461996" duration="3220000" />
       <workItem from="1480921147839" duration="13225000" />
-      <workItem from="1480938689456" duration="14960000" />
+      <workItem from="1480938689456" duration="15013000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="87225000" />
+    <option name="totallyTimeSpent" value="87278000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1919" y="27" width="1922" height="1054" extended-state="6" />
@@ -1182,8 +1188,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/circle_finder.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="49" column="4" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="4" />
+        <state relative-caret-position="470">
+          <caret line="63" column="4" selection-start-line="63" selection-start-column="4" selection-end-line="63" selection-end-column="4" />
           <folding>
             <element signature="e#48#86#0" expanded="true" />
           </folding>
@@ -1193,15 +1199,15 @@
     <entry file="file://$PROJECT_DIR$/include/project4/rrtTree.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
-          <caret line="18" column="20" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+          <caret line="19" column="20" selection-start-line="19" selection-start-column="20" selection-end-line="19" selection-end-column="20" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3332">
-          <caret line="307" column="13" selection-start-line="307" selection-start-column="13" selection-end-line="307" selection-end-column="13" />
+        <state relative-caret-position="470">
+          <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
           <folding>
             <element signature="e#139#158#0" expanded="true" />
           </folding>
