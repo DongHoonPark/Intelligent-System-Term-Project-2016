@@ -115,11 +115,18 @@ int main(int argc, char** argv){
     goalpoint = waypoints[1];
     dynamic_map = map.clone();
     cv::Mat dynamic_map_circledetection = dynamic_map.clone();
+    cv::Mat dynamic_map_linedetection = dynamic_map.clone();
 
     if(MODE_DYNAMIC){
         cv::GaussianBlur(dynamic_map, dynamic_map_circledetection, cv::Size(3, 3), 2, 2 );
+
+        cv::Canny(dynamic_map, dynamic_map_linedetection, 200, 1000, 3);
+
         std::vector<cv::Vec3f> circles;
         cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
+
+        std::vector<cv::Vec4i> lines;
+        cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 68, 55, 30 );
 
         for( size_t i = 0; i < circles.size(); i++ )
         {
@@ -127,6 +134,16 @@ int main(int argc, char** argv){
 
             // circle center
             cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
+        }
+        for( size_t i = 0; i < lines.size(); i++ )
+        {
+            cv::Point pt1, pt2;
+            pt1.x = lines[i][0];
+            pt1.y = lines[i][1];
+            pt2.x = lines[i][2];
+            pt2.y = lines[i][3];
+
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),15);
         }
     }
 
@@ -262,7 +279,7 @@ int main(int argc, char** argv){
              * copy your code from previous project2
              */
 //            if(dist(gen) > 1.00) dynamic_mapping();
-            if(isCollision()){
+            if(false){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
@@ -307,6 +324,7 @@ int main(int argc, char** argv){
                     cmd_vel_pub.publish(cmd_vel);
                 }
             }
+            //dynamic_mapping();
 
             /*
              * add transition part from RUNNING to PATH_PLANNING
@@ -457,6 +475,7 @@ void set_waypoints()
     waypoint_candid[2].x = -8.0;
     waypoint_candid[2].y = 7.0;
 
+    /* scenario 2 sample way points
     waypoint_candid[0].x = -5.0;
     waypoint_candid[0].y = -4.0;
     waypoint_candid[1].x = 5.0;
@@ -536,10 +555,10 @@ void dynamic_mapping()
     */
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
-        setcmdvel(-0.1,0);
+        //setcmdvel(-0.1,0);
         return;
     }
-    ros::Duration(0.5).sleep();
+    //ros::Duration(0.5).sleep();
     ros::spinOnce();
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
