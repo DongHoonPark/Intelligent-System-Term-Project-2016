@@ -19,5 +19,5 @@ private:
     control ctrl;
     const double threshold_th1 = M_PI/3;
     const double threshold_th2 = M_PI/8;
-    const double threshold_point = 0.2;
+    const double threshold_point = 300;
 };

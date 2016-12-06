@@ -544,7 +544,7 @@ void setcmdvel(double v, double w){
     cmd_vel.linear.z = 0.0;
     cmd_vel.angular.x = 0.0;
     cmd_vel.angular.y = 0.0;
-    cmd_vel.angular.z = w;
+    cmd_vel.angular.z = -w;
 }
 
 void dynamic_mapping()
