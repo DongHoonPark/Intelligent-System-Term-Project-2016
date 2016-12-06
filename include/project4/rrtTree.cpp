@@ -216,7 +216,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
         return 2;
     }
 //    cv::imshow("dm", *(this->dynamic_map_ptr));
-    cv::waitKey(30);
+//    cv::waitKey(30);
     while(1){
         if(++iter > 60000){
             if(++generate_fail > 3)
@@ -232,7 +232,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
 
         // RRT*
         // Find neighbor points s.t. |X_near[i] - x_new| < radius & no collision
-        std::vector<int> X_nears = nearNeighbors(x_new, std::min(MaxStep, gamma*pow((log(this->count)/(this->count)),1/2)));
+        std::vector<int> X_nears = nearNeighbors(x_new, std::min(MaxStep, gamma*sqrt(log(this->count)/(this->count))));
         std::vector<double> X_nears_c;       // Remember c(X_near_i, x_new)
         for(auto i=0; i < X_nears.size(); ++i)
             X_nears_c.push_back(getC(this->ptrTable[X_nears[i]]->location, x_new));
@@ -262,7 +262,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
             auto len = sqrt(dx*dx + dy*dy);
             if(len < MaxStep){
                 addVertexAndCost(this->x_goal, this->x_goal, idx_near_goal, len);
-                //optimizePath();
+                optimizePath();
                 return 0;
             }
         }
@@ -419,7 +419,6 @@ std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
             }
         }
     }
-//    printf("\n");
     /* L2 norm 대신 x_new+(+-radius, +-radius) 범위의 모든 point를 리턴
     for(int i=count-1; i>-1; i--){
         point tmp_x = ptrTable[i]->location;
@@ -436,14 +435,16 @@ std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
 
 void rrtTree::optimizePath(){
 	int iter = this->count - 1;
-	int iter_parent = ptrTable[iter]->idx_parent;
-	while(iter_parent != 0){
-		int iter_parent = ptrTable[iter]->idx_parent;
-		int iter_gp = ptrTable[iter_parent]->idx_parent;
+	int iter_parent;
+    int iter_gp = this->count - 3;
+	while(iter_gp != 0){
+		iter_parent = ptrTable[iter]->idx_parent;
+		iter_gp = ptrTable[iter_parent]->idx_parent;
 		if(!isCollision(ptrTable[iter]->location, ptrTable[iter_gp]->location)){
-			changeEdge(iter, iter_gp, getC(ptrTable[iter]->location, ptrTable[iter_gp]->location));
-			iter = iter_parent;
-		}
+			changeEdge(iter, iter_gp, 0);    //getC(ptrTable[iter]->location, ptrTable[iter_gp]->location)); // Cost is unncessary
+		} else {
+            iter = iter_parent;
+        }
 	}
 }
 

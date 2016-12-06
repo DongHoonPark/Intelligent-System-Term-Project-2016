@@ -144,10 +144,10 @@ int main(int argc, char** argv){
 
 
     cv::namedWindow( "debug path" );
-    cv::namedWindow( "dm" );// Create a window for display.
+    cv::namedWindow( "dm" );    // Create a window for display.
     cv::imshow( "dm", display_map );
     cv::imshow( "debug path", display_map );
-    cv::waitKey(1000);                                          // Wait for a keystroke in the window
+    cv::waitKey(1000);          // Wait for a keystroke in the window
 
 
 //    image_transport::ImageTransport it(n);
@@ -166,7 +166,7 @@ int main(int argc, char** argv){
         switch (state) {
         case INIT: {
             look_ahead_idx = 0;
-
+            printf("asdf");
             //visualize path
 //            for(int i = 0; i < path_RRT.size(); i++){
 //                gazebo_msgs::SpawnModel model;
@@ -273,8 +273,8 @@ int main(int argc, char** argv){
                            cv::Scalar(255, 255, 255),
                            CV_FILLED);
 
-                cv::imshow("dm", dynamic_map);
-                cv::waitKey(3);
+//                cv::imshow("dm", display_map);
+//                cv::waitKey(3);
 
                 state = PATH_PLANNING;
             }
@@ -388,14 +388,13 @@ void generate_path_RRT()
     }
 
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
-    rrt->setDynamicMap(&dynamic_map);
+//    rrt->setDynamicMap(&dynamic_map);
 
     while(true){
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
-//        dynamic_map = map.clone();
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 2.5);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 3000, 2.0);
         if(rrtResult == 0){
             break;
         }
@@ -404,20 +403,20 @@ void generate_path_RRT()
             current_pos.x = robot_pose.x;
             current_pos.y = robot_pose.y;
                     cv::circle(dynamic_map,
-                   cv::Point(
+                    cv::Point(
                            (int)(current_pos.y / 0.05 + map_origin_y),
                            (int)(current_pos.x / 0.05 + map_origin_x)
-                   ),
-                   20,
-                   cv::Scalar(255, 0, 255),
-                   CV_FILLED);
+                    ),
+                    20,
+                    cv::Scalar(255, 0, 255),
+                    CV_FILLED);
 
 //            cv::imshow("dm", dynamic_map);
 //            cv::waitKey(30);
             setcmdvel(-0.1,0);
         }
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
-        rrt->setDynamicMap(&dynamic_map);
+//        rrt->setDynamicMap(&dynamic_map);
     };
 
 

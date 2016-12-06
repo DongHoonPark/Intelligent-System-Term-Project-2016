@@ -31,12 +31,12 @@ control purePursuit::get_control(point x_robot, point x_goal){
     else if(fabs(diff_th) > this->threshold_th2){
         //turn slow
         this->ctrl.w = M_PI/8 * diff_th/fabs(diff_th);
-        this->ctrl.v = 0.15;
+        this->ctrl.v = 0.16;
     }
     else{
         //persuit
         this->ctrl.w = M_PI/15 * diff_th/fabs(diff_th);
-        this->ctrl.v = 0.3;
+        this->ctrl.v = 0.32;
     }
 
     return ctrl;

@@ -65,5 +65,6 @@ public:
 
     void setDynamicMap(cv::Mat* dm);
     void resetDynamicMap();
+
     cv::Mat map_original;
 };
