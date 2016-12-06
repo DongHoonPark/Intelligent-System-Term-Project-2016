@@ -61,13 +61,7 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3ebc24ea-ec65-4681-af91-f083f103dfe3" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/project4/purePursuit.cpp" afterPath="$PROJECT_DIR$/include/project4/purePursuit.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/include/project4/rrtTree.cpp" afterPath="$PROJECT_DIR$/include/project4/rrtTree.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/circle_finder.cpp" afterPath="$PROJECT_DIR$/src/circle_finder.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
-    </list>
+    <list default="true" id="3ebc24ea-ec65-4681-af91-f083f103dfe3" name="Default" comment="" />
     <ignored path="project4.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -802,12 +796,12 @@
       <workItem from="1480904161979" duration="2159000" />
       <workItem from="1480906461996" duration="3220000" />
       <workItem from="1480921147839" duration="13225000" />
-      <workItem from="1480938689456" duration="14462000" />
+      <workItem from="1480938689456" duration="14561000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="86727000" />
+    <option name="totallyTimeSpent" value="86826000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1919" y="27" width="1922" height="1054" extended-state="6" />
