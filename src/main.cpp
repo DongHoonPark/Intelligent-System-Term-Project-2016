@@ -11,6 +11,7 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <boost/thread.hpp>
 
 #include <ros/ros.h>
 #include <gazebo_msgs/SpawnModel.h>
@@ -79,6 +80,16 @@ int look_ahead_idx = 0;
 auto back_step_flag = 0;
 
 
+class DynamicMapper{
+public:
+	DynamicMapper(cv::Mat& dynamic_map){
+		this->dynamic_map = dynamic_map;
+	}
+	void dynamic_mapping();
+	cv::Mat dynamic_map;
+};
+
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "rrt_main");
     ros::NodeHandle n;
@@ -118,21 +129,27 @@ int main(int argc, char** argv){
     goalpoint = waypoints[1];
     dynamic_map = map.clone();
     display_map = map.clone();
-    cv::Mat dynamic_map_circledetection = dynamic_map.clone();
 
+    cv::Mat dynamic_map_circledetection = dynamic_map.clone();
     if(MODE_DYNAMIC){
         cv::GaussianBlur(dynamic_map, dynamic_map_circledetection, cv::Size(3, 3), 2, 2 );
         std::vector<cv::Vec3f> circles;
         cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
 
-        for( size_t i = 0; i < circles.size(); i++ )
-        {
+        for( size_t i = 0; i < circles.size(); i++ ){
             cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 
             // circle center
             cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
         }
     }
+
+    // Real-time mapping consts.
+    int dm_iter = 0;
+//    DynamicMapper dynamic_mapper(dynamic_map);
+//    boost::function<void()> th_func = boost::bind(&DynamicMapper::dynamic_mapping, &dynamic_mapper);
+//    boost::thread th(th_func);
+//    th.join();
 
     // RRT
     generate_path_RRT();
@@ -259,6 +276,10 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
+        	if( robot_pose_check() && ++dm_iter == 8 ){
+        		dynamic_mapping();
+        		dm_iter = 0;
+        	}
             if(isCollision()){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
