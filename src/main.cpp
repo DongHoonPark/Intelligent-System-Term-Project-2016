@@ -78,6 +78,7 @@ auto robot_pose_roll = 0.0;
 int look_ahead_idx = 0;
 auto back_step_flag = 0;
 
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "rrt_main");
     ros::NodeHandle n;
@@ -146,6 +147,7 @@ int main(int argc, char** argv){
 
     cv::namedWindow( "debug path" );
     cv::namedWindow( "dm" );    // Create a window for display.
+    cv::startWindowThread();
     cv::imshow( "dm", display_map );
     cv::imshow( "debug path", display_map );
     cv::waitKey(1000);          // Wait for a keystroke in the window
@@ -167,7 +169,6 @@ int main(int argc, char** argv){
         switch (state) {
         case INIT: {
             look_ahead_idx = 0;
-            printf("asdf");
             //visualize path
 //            for(int i = 0; i < path_RRT.size(); i++){
 //                gazebo_msgs::SpawnModel model;
@@ -520,6 +521,45 @@ bool isCollision()
     return false;
 }
 
+bool isReallyCollision(int idx){
+    // Pioneer has radius about 40cm(= 8px).
+    int pixel_xrange = 8;
+    int pixel_yrange = 8;
+
+    auto x1_x_idx = (int)(robot_pose.x / res + map_origin_x);
+    auto x1_y_idx = (int)(robot_pose.y / res + map_origin_y);
+    auto x2_x_idx = (int)(path_RRT[idx].x / res + map_origin_x);
+    auto x2_y_idx = (int)(path_RRT[idx].y / res + map_origin_y);
+
+    double diff_x = x1_x_idx - x2_x_idx;
+    double diff_y = x1_y_idx - x2_y_idx;
+    double len = sqrt(diff_x*diff_x + diff_y*diff_y);
+    int pnum = (int)(len);
+    if(pnum < 0){
+        return false;
+    }
+    else{
+    	for(auto i=0; i< pnum; i++){
+    		auto sample_x = x1_x_idx + (int)((x2_x_idx - x1_x_idx) * 1.0 * i / pnum);
+           auto sample_y = x1_y_idx + (int)((x2_y_idx - x1_y_idx) * 1.0 * i / pnum);
+           for(auto j=0; j < pixel_xrange; j++){
+               for(auto k=0; k < pixel_yrange; k++){
+                   auto row = sample_x - pixel_xrange/2 + j;
+                   auto col = sample_y - pixel_yrange/2 + k;
+                   if(dynamic_map.cols == 0 || dynamic_map.rows == 0){
+                       printf("Error! (map.rows or map.cols is 0)\n"); return true;
+                      }
+                   auto pixel = dynamic_map.at<uchar>(row, col);
+                   if(pixel != 255){
+                       return true;
+                   }
+               }
+           }
+    	}
+		return false;
+    }
+}
+
 void setcmdvel(double v, double w){
     cmd_vel.linear.x = v;
     cmd_vel.linear.y = 0.0;
@@ -540,8 +580,8 @@ void dynamic_mapping()
         setcmdvel(-0.1,0);
         return;
     }
-    ros::Duration(0.25).sleep();
-    ros::spinOnce();
+//    ros::Duration(0.25).sleep();
+//    ros::spinOnce();
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
@@ -588,42 +628,3 @@ bool robot_pose_check(){
     }
 }
 
-
-bool isReallyCollision(int idx){
-    // Pioneer has radius about 40cm(= 8px).
-    int pixel_xrange = 2;
-    int pixel_yrange = 2;
-
-    auto x1_x_idx = (int)(robot_pose.x / res + map_origin_x);
-    auto x1_y_idx = (int)(robot_pose.y / res + map_origin_y);
-    auto x2_x_idx = (int)(path_RRT[idx].x / res + map_origin_x);
-    auto x2_y_idx = (int)(path_RRT[idx].y / res + map_origin_y);
-
-    double diff_x = x1_x_idx - x2_x_idx;
-    double diff_y = x1_y_idx - x2_y_idx;
-    double len = sqrt(diff_x*diff_x + diff_y*diff_y);
-    int pnum = (int)(len);
-    if(pnum < 0){
-        return false;
-    }
-    else{
-    	for(auto i=0; i< pnum; i++){
-    		auto sample_x = x1_x_idx + (int)((x2_x_idx - x1_x_idx) * 1.0 * i / pnum);
-           auto sample_y = x1_y_idx + (int)((x2_y_idx - x1_y_idx) * 1.0 * i / pnum);
-           for(auto j=0; j < pixel_xrange; j++){
-               for(auto k=0; k < pixel_yrange; k++){
-                   auto row = sample_x - pixel_xrange/2 + j;
-                   auto col = sample_y - pixel_yrange/2 + k;
-                   if(dynamic_map.cols == 0 || dynamic_map.rows == 0){
-                       printf("Error! (map.rows or map.cols is 0)\n"); return true;
-                      }
-                   auto pixel = dynamic_map.at<uchar>(row, col);
-                   if(pixel != 255){
-                       return true;
-                   }
-               }
-           }
-    	}
-		return false;
-    }
-}
