@@ -65,6 +65,7 @@ int state;
 
 //function definition
 bool isCollision();
+bool isReallyCollision(int idx);
 void set_waypoints();
 void generate_path_RRT();
 void callback_state(gazebo_msgs::ModelStatesConstPtr msgs);
@@ -261,8 +262,11 @@ int main(int argc, char** argv){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
-                ros::Duration(3).sleep();
+                ros::Duration(1).sleep();
 
+                dynamic_mapping();
+                if(isReallyCollision(look_ahead_idx))
+                	   state = PATH_PLANNING;
                 ros::spinOnce();
                 cv::circle(dynamic_map,
                            cv::Point(
@@ -276,7 +280,7 @@ int main(int argc, char** argv){
 //                cv::imshow("dm", display_map);
 //                cv::waitKey(3);
 
-                state = PATH_PLANNING;
+//                state = PATH_PLANNING;
             }
             else{
                 if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
@@ -585,3 +589,41 @@ bool robot_pose_check(){
 }
 
 
+bool isReallyCollision(int idx){
+    // Pioneer has radius about 40cm(= 8px).
+    int pixel_xrange = 2;
+    int pixel_yrange = 2;
+
+    auto x1_x_idx = (int)(robot_pose.x / res + map_origin_x);
+    auto x1_y_idx = (int)(robot_pose.y / res + map_origin_y);
+    auto x2_x_idx = (int)(path_RRT[idx].x / res + map_origin_x);
+    auto x2_y_idx = (int)(path_RRT[idx].y / res + map_origin_y);
+
+    double diff_x = x1_x_idx - x2_x_idx;
+    double diff_y = x1_y_idx - x2_y_idx;
+    double len = sqrt(diff_x*diff_x + diff_y*diff_y);
+    int pnum = (int)(len);
+    if(pnum < 0){
+        return false;
+    }
+    else{
+    	for(auto i=0; i< pnum; i++){
+    		auto sample_x = x1_x_idx + (int)((x2_x_idx - x1_x_idx) * 1.0 * i / pnum);
+           auto sample_y = x1_y_idx + (int)((x2_y_idx - x1_y_idx) * 1.0 * i / pnum);
+           for(auto j=0; j < pixel_xrange; j++){
+               for(auto k=0; k < pixel_yrange; k++){
+                   auto row = sample_x - pixel_xrange/2 + j;
+                   auto col = sample_y - pixel_yrange/2 + k;
+                   if(dynamic_map.cols == 0 || dynamic_map.rows == 0){
+                       printf("Error! (map.rows or map.cols is 0)\n"); return true;
+                      }
+                   auto pixel = dynamic_map.at<uchar>(row, col);
+                   if(pixel != 255){
+                       return true;
+                   }
+               }
+           }
+    	}
+		return false;
+    }
+}

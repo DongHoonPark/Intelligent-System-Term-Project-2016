@@ -262,7 +262,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
             auto len = sqrt(dx*dx + dy*dy);
             if(len < MaxStep){
                 addVertexAndCost(this->x_goal, this->x_goal, idx_near_goal, len);
-                optimizePath();
+//                optimizePath();
                 return 0;
             }
         }
@@ -368,12 +368,20 @@ bool rrtTree::isCollision(point x1, point x2) {
 std::vector<point> rrtTree::backtracking(){
     // TODO
     std::vector<point> point_set;
-    auto point_idx_now = this->ptrTable[this->count-1]->idx;
-    while(point_idx_now != 0){
-        node* node_toprocess = this->ptrTable[point_idx_now];
-        point_set.push_back(node_toprocess->location);
-        point_idx_now = node_toprocess->idx_parent;
+    auto idx_child = this->count - 1;
+    auto idx_parent = this->ptrTable[idx_child]->idx_parent;
+    while(idx_parent != 0){
+    	auto idx_gp = this->ptrTable[idx_parent]->idx_parent;
+    	if(!isCollision(this->ptrTable[idx_gp]->location, this->ptrTable[idx_child]->location)){
+    		idx_parent = idx_gp;
+    		continue;
+    	}
+    	changeEdge(idx_child, idx_parent, 0);	// Cost is no more needed!
+    	point_set.push_back(this->ptrTable[idx_child]->location);
+    	idx_child = idx_parent;
+    	idx_parent = this->ptrTable[idx_child]->idx_parent;
     }
+    point_set.push_back(this->ptrTable[idx_child]->location);
     point_set.push_back(this->root->location);
     std::reverse(point_set.begin(), point_set.end());
     return point_set;
