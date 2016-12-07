@@ -94,9 +94,9 @@ int main(int argc, char** argv){
     ros::Subscriber gazebo_pose_sub = n.subscribe("/gazebo/model_states",1,callback_state);
     ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",1);
     ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points",1,callback_points);
-     */
     ros::ServiceClient gazebo_spawn = n.serviceClient<gazebo_msgs::SpawnModel>("/gazebo/spawn_urdf_model");
     ros::ServiceClient gazebo_set = n.serviceClient<gazebo_msgs::SetModelState>("/gazebo/set_model_state");
+    */
     printf("Initialize topics\n");
 
 // Load Map
