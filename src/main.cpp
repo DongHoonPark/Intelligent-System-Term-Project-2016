@@ -76,6 +76,8 @@ auto robot_pose_roll = 0.0;
 int look_ahead_idx = 0;
 auto back_step_flag = 0;
 
+rrtTree* rrt;
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "rrt_main");
     ros::NodeHandle n;
@@ -144,7 +146,7 @@ int main(int argc, char** argv){
             pt2.x = lines[i][2];
             pt2.y = lines[i][3];
 
-            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),20);
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),15);
         }
     }
 
@@ -156,7 +158,7 @@ int main(int argc, char** argv){
     state = INIT;
     bool running = true;
     purePursuit pure_pursuit;
-    ros::Rate control_rate(30);
+    ros::Rate control_rate(10);
 
 
     cv::namedWindow( "debug path" );
@@ -275,7 +277,8 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-            if(isCollision()){
+//            if(isCollision()){
+            if(false){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
@@ -297,6 +300,7 @@ int main(int argc, char** argv){
                 state = PATH_PLANNING;
             }
             else{
+
                 if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
 
                     look_ahead_idx++;
@@ -318,7 +322,18 @@ int main(int argc, char** argv){
 
                     setcmdvel(ctrl.v, ctrl.w);
                     cmd_vel_pub.publish(cmd_vel);
+
+                    dynamic_mapping();
+                    rrt->setDynamicMap(&dynamic_map);
+                    std::vector<point> path_RRT_remain(path_RRT.begin()+look_ahead_idx-1, path_RRT.end());
+                    if( !rrt->checkPathValidity(path_RRT_remain) ){
+                        setcmdvel(0,0);
+                        cmd_vel_pub.publish(cmd_vel);
+                        state = PATH_PLANNING;
+                    }
                 }
+
+
             }
 
             /*
@@ -397,7 +412,7 @@ void generate_path_RRT()
         current_pos.y = robot_pose.y;
     }
 
-    auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+    rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     rrt->setDynamicMap(&dynamic_map);
 
     while(true){
@@ -426,7 +441,7 @@ void generate_path_RRT()
             cv::waitKey(30);
             setcmdvel(-0.1,0);
         }
-        rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+        rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 8);
         rrt->setDynamicMap(&dynamic_map);
     };
 
@@ -544,16 +559,15 @@ void dynamic_mapping()
     */
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
-        setcmdvel(-0.1,0);
+//        setcmdvel(-0.1,0);
         return;
     }
-    ros::Duration(0.5).sleep();
     ros::spinOnce();
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
         if(pc_iter->x != NAN && pc_iter->z != NAN){
-            if(pc_iter->x > 0 && pc_iter->x < 10.0 && pc_iter->y <0 && pc_iter->y > -10.0) {
+            if(pc_iter->x > 0 && pc_iter->x < 5.0 && pc_iter->y <0 && pc_iter->y > -10.0) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);
@@ -566,7 +580,7 @@ void dynamic_mapping()
                                    pos_y,
                                    pos_x
                            ),
-                           20,
+                           9,
                            cv::Scalar(0, 0, 255),
                            CV_FILLED);
             }

@@ -10,7 +10,8 @@ rrtTree::rrtTree(point x_init, point x_goal, cv::Mat map, double map_origin_x, d
     this->x_init = x_init;
     this->x_goal = x_goal;
     this->map_original = map.clone();
-    //this->map = addMargin(map, margin);
+//    this->map = addMargin(map, margin);
+    this->map = map.clone();
     this->map = map.clone();
     this->map_origin_x = map_origin_x;
     this->map_origin_y = map_origin_y;
@@ -196,24 +197,15 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
     auto iter = 0;
     auto generate_fail = 0;
     if(checkPoint(this->root->location)!=0 ){
-//
-//        cv::circle(*this->dynamic_map_ptr,
-//                   cv::Point(
-//                           (int)(this->root->location.y / 0.05 + map_origin_y),
-//                           (int)(this->root->location.x / 0.05 + map_origin_x)
-//                   ),
-//                   12,
-//                   cv::Scalar(255, 255, 255),
-//                   CV_FILLED);
-//        auto erase_area = 8;
-//        for(auto i=0; i< erase_area; i++){
-//            for(auto j=0; j<erase_area; j++){
-//                this->dynamic_map_ptr->at<uchar>(
-//                        (int)(this->root->location.x / 0.05 + map_origin_x)-erase_area/2+i,
-//                        (int)(this->root->location.y / 0.05 + map_origin_y)-erase_area/2+j
-//                ) = 255;
-//            }
-//        }
+
+        cv::circle(this->map,
+                   cv::Point(
+                           (int)(this->root->location.y / 0.05 + map_origin_y),
+                           (int)(this->root->location.x / 0.05 + map_origin_x)
+                   ),
+                   12,
+                   cv::Scalar(255, 255, 255),
+                   CV_FILLED);
         return 2;
     }
     cv::imshow("dm", *(this->dynamic_map_ptr));
@@ -263,7 +255,6 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
             auto len = sqrt(dx*dx + dy*dy);
             if(len < MaxStep){
                 addVertexAndCost(this->x_goal, this->x_goal, idx_near_goal, len);
-                //optimizePath();
                 return 0;
             }
         }
@@ -377,6 +368,7 @@ std::vector<point> rrtTree::backtracking(){
     }
     point_set.push_back(this->root->location);
     std::reverse(point_set.begin(), point_set.end());
+    point_set = optimizePath(point_set);
     return point_set;
 }
 
@@ -435,21 +427,32 @@ std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
     return result;
 }
 
-void rrtTree::optimizePath(){
-	int iter = this->count - 1;
-	int iter_parent = ptrTable[iter]->idx_parent;
-	while(iter_parent != 0){
-		int iter_parent = ptrTable[iter]->idx_parent;
-		int iter_gp = ptrTable[iter_parent]->idx_parent;
-		if(!isCollision(ptrTable[iter]->location, ptrTable[iter_gp]->location)){
-			changeEdge(iter, iter_gp, getC(ptrTable[iter]->location, ptrTable[iter_gp]->location));
-			iter = iter_parent;
-		}
-	}
+std::vector<point> rrtTree::optimizePath(std::vector<point> path){
+//	int iter = this->count - 1;
+//	int iter_parent = ptrTable[iter]->idx_parent;
+//	while(iter_parent != 0){
+//		int iter_parent = ptrTable[iter]->idx_parent;
+//		int iter_gp = ptrTable[iter_parent]->idx_parent;
+//		if(!isCollision(ptrTable[iter]->location, ptrTable[iter_gp]->location)){
+//			changeEdge(iter, iter_gp, getC(ptrTable[iter]->location, ptrTable[iter_gp]->location));
+//			iter = iter_parent;
+//		}
+//	}
+    for(auto iter=path.begin(); iter!=path.end()-2;){
+        if(isCollision(*iter.base(), *(iter+2).base())){
+            iter++;
+        }
+        else{
+            path.erase(iter+1);
+        }
+    }
+    return path;
 }
 
 void rrtTree::setDynamicMap(cv::Mat *dynamic_map) {
     this->dynamic_map_ptr = dynamic_map;
+    //this->map = addMargin(*dynamic_map,8);
+    this->map = dynamic_map->clone();
 }
 
 void rrtTree::resetDynamicMap() {
@@ -481,4 +484,13 @@ int rrtTree::checkPoint(point check) {
     }
 
     return 0;
+}
+
+bool rrtTree::checkPathValidity(std::vector<point> path) {
+    for(auto i=0; i<path.size()-1; i++){
+        if(isCollision(path[i], path[i+1])){
+            return false;
+        }
+    }
+    return true;
 }
