@@ -53,6 +53,7 @@ cv::Mat rrtTree::addMargin(cv::Mat map, int margin) {
     return map_margin;
 }
 
+
 void rrtTree::visualizeTree(){
     int thickness = 1;
     int lineType = 8;
