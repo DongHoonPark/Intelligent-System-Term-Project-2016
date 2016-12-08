@@ -48,7 +48,7 @@ private:
     void addVertexAndCost(point x_new, point x_rand, int idx_min, double cost);
     void changeEdge(int idx, int idx_parent, double c);
     double getC(point, point);
-    void optimizePath();    // RRT*-smart implementation
+    std::vector<point> optimizedPath(std::vector<point>);
 
 public:
     rrtTree();

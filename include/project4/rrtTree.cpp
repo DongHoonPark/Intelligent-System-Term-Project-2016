@@ -255,6 +255,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
          }
        //printf("[RRT*] trial #: %d, iteration: %d, # of points: %d\n", generate_fail, iter, this->count);
 
+        /*
         if(this->count == K) candids = nearNeighbors(this->x_goal, MaxStep);
         else if(this-> count > K){
         	int idx_near_goal = this->count - 1;
@@ -276,18 +277,19 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
         		addVertexAndCost(this->x_goal, this->x_goal, idx_min_cost, min_cost);	// cost in no more needed!
         		return 0;
         	}
-        	/*
+        }
+        */
+        if(this->count >= K){
         	int idx_near_goal = (this->count == K)? nearestNeighbor(this->x_goal): (this->count - 1);
             point x_nearest = this->ptrTable[idx_near_goal]->location;
             double dx = this->x_goal.x - x_nearest.x;
             double dy = this->x_goal.y - x_nearest.y;
             auto len = sqrt(dx*dx + dy*dy);
-            if(len < MaxStep){
+            if(len < MaxStep && !isCollision(x_nearest, this->x_goal)){
                 addVertexAndCost(this->x_goal, this->x_goal, idx_near_goal, len);
 //                optimizePath();
                 return 0;
             }
-            */
         }
     }
     return -1;
@@ -390,24 +392,6 @@ bool rrtTree::isCollision(point x1, point x2) {
 
 std::vector<point> rrtTree::backtracking(){
     // TODO
-	/*
-    std::vector<point> point_set;
-    auto idx_child = this->count - 1;
-    auto idx_parent = this->ptrTable[idx_child]->idx_parent;
-    point_set.push_back(this->x_goal);
-    while(idx_parent != 0){
-    	auto idx_gp = this->ptrTable[idx_parent]->idx_parent;
-    	if(!isCollision(this->ptrTable[idx_gp]->location, this->ptrTable[idx_child]->location)){
-    		idx_parent = idx_gp;
-    		continue;
-    	}
-    	idx_child = idx_parent;
-    	idx_parent = this->ptrTable[idx_child]->idx_parent;
-    }
-    point_set.push_back(this->ptrTable[idx_child]->location);
-    point_set.push_back(this->root->location);
-    std::reverse(point_set.begin(), point_set.end());
-    */
     std::vector<point> point_set;
     auto point_idx_now = this->ptrTable[this->count-1]->idx;
     while(point_idx_now != 0){
@@ -417,7 +401,15 @@ std::vector<point> rrtTree::backtracking(){
     }
     point_set.push_back(this->root->location);
     std::reverse(point_set.begin(), point_set.end());
-    visualizeTree(point_set);
+	for(auto iter=point_set.begin(); iter!=point_set.end()-2;){
+        if(isCollision(*iter.base(), *(iter+2).base())){
+            iter++;
+        }
+        else{
+            point_set.erase(iter+1);
+        }
+    }
+//    visualizeTree(point_set);
     return point_set;
 }
 
@@ -475,23 +467,9 @@ std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
     return result;
 }
 
-void rrtTree::optimizePath(){
-	int iter = this->count - 1;
-	int iter_parent;
-    int iter_gp = this->count - 3;
-	while(iter_gp != 0){
-		iter_parent = ptrTable[iter]->idx_parent;
-		iter_gp = ptrTable[iter_parent]->idx_parent;
-		if(!isCollision(ptrTable[iter]->location, ptrTable[iter_gp]->location)){
-			changeEdge(iter, iter_gp, 0);    //getC(ptrTable[iter]->location, ptrTable[iter_gp]->location)); // Cost is unncessary
-		} else {
-            iter = iter_parent;
-        }
-	}
-}
-
 void rrtTree::setDynamicMap(cv::Mat *dynamic_map) {
     this->dynamic_map_ptr = dynamic_map;
+    this->map = dynamic_map->clone();
 }
 
 void rrtTree::resetDynamicMap() {

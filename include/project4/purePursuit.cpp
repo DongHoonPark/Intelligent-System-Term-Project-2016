@@ -5,7 +5,7 @@ purePursuit::purePursuit(){
 }
 
 #define STD_V 0.60  // max speed is 1.2 m/s
-#define STD_W1 1.00  // max angular speed is 5.235988 rad/sec (=300 degree/sec)
+#define STD_W1 0.60  // max angular speed is 5.235988 rad/sec (=300 degree/sec)
 #define STD_W2 0.50
 
 control purePursuit::get_control(point x_robot, point x_goal){
@@ -22,7 +22,7 @@ control purePursuit::get_control(point x_robot, point x_goal){
     double rel_th = atan(rel_y/rel_x);
     if(rel_x < 0) rel_y > 0? rel_th += M_PI: rel_th -= M_PI;
     if(fabs(rel_th) > M_PI/12.0){
-        ctrl.v = 0.0;
+        ctrl.v = (ctrl.v > 0.1? (ctrl.v - 0.1) :0.0);
         ctrl.w = (-(rel_th > 0) + (rel_th < 0)) * STD_W1;// -0.50*rel_th;
         return ctrl;
     } else {

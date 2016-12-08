@@ -31,7 +31,7 @@
 //map spec
 cv::Mat map;
 cv::Mat dynamic_map; //use this variable at dynamic mapping
-cv::Mat display_map;
+//cv::Mat display_map;
 double res;
 int map_y_range;
 int map_x_range;
@@ -67,7 +67,8 @@ int state;
 
 //function definition
 bool isCollision();
-bool isReallyCollision(int idx);
+bool isReallyCollision(point x1, point x2);
+bool checkPathValidity(std::vector<point> path);
 void set_waypoints();
 void generate_path_RRT();
 void callback_state(gazebo_msgs::ModelStatesConstPtr msgs);
@@ -79,16 +80,6 @@ auto robot_pose_roll = 0.0;
 
 int look_ahead_idx = 0;
 auto back_step_flag = 0;
-
-
-class DynamicMapper{
-public:
-	DynamicMapper(cv::Mat& dynamic_map){
-		this->dynamic_map = dynamic_map;
-	}
-	void dynamic_mapping();
-	cv::Mat dynamic_map;
-};
 
 
 int main(int argc, char** argv){
@@ -129,12 +120,13 @@ int main(int argc, char** argv){
     //Temp goalpoint
     goalpoint = waypoints[1];
     dynamic_map = map.clone();
-    display_map = map.clone();
+//    display_map = map.clone();
 
     cv::Mat dynamic_map_circledetection = dynamic_map.clone();
     cv::Mat dynamic_map_linedetection = dynamic_map.clone();
 
     if(MODE_DYNAMIC){
+
         cv::GaussianBlur(dynamic_map, dynamic_map_circledetection, cv::Size(3, 3), 2, 2 );
         std::vector<cv::Vec3f> circles;
         cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
@@ -145,7 +137,6 @@ int main(int argc, char** argv){
             // circle center
             cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
          }
-
         cv::Canny(dynamic_map, dynamic_map_linedetection, 200, 1000, 3);
         std::vector<cv::Vec4i> lines;
         cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 40, 20, 10 );
@@ -156,16 +147,12 @@ int main(int argc, char** argv){
             pt2.x = lines[i][2];
             pt2.y = lines[i][3];
 
-            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),15);
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(240, 240, 240), 15);
         }
     }
 
     // Real-time mapping consts.
     int dm_iter = 0;
-//    DynamicMapper dynamic_mapper(dynamic_map);
-//    boost::function<void()> th_func = boost::bind(&DynamicMapper::dynamic_mapping, &dynamic_mapper);
-//    boost::thread th(th_func);
-//    th.join();
 
     // RRT
     generate_path_RRT();
@@ -175,13 +162,13 @@ int main(int argc, char** argv){
     state = INIT;
     bool running = true;
     purePursuit pure_pursuit;
-    ros::Rate control_rate(20);
+    ros::Rate control_rate(25);
 
 
 //    cv::namedWindow( "debug path" );
-    cv::namedWindow( "dm" );    // Create a window for display.
+//    cv::namedWindow( "dm" );    // Create a window for display.
     cv::startWindowThread();
-    cv::imshow( "dm", display_map );
+//    cv::imshow( "dm", display_map );
 //    cv::imshow( "debug path", display_map );
     cv::waitKey(1000);          // Wait for a keystroke in the window
 
@@ -281,7 +268,7 @@ int main(int argc, char** argv){
 
             gazebo_set.call(setmodelstate);
             ros::spinOnce();
-            ros::Rate(0.33).sleep();
+//            ros::Rate(0.33).sleep();
             printf("Initialize ROBOT\n");
 
             state = RUNNING;
@@ -292,16 +279,15 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-            if(isCollision()){
+            if(isCollision() && isReallyCollision(robot_pose, path_RRT[look_ahead_idx])){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
                 ros::Duration(1).sleep();
 
                 dynamic_mapping();
-                if(isReallyCollision(look_ahead_idx))
-                	   state = PATH_PLANNING;
                 ros::spinOnce();
+                /*
                 cv::circle(dynamic_map,
                            cv::Point(
                                    (int)(robot_pose.y / 0.05 + map_origin_y),
@@ -310,11 +296,24 @@ int main(int argc, char** argv){
                            12,
                            cv::Scalar(255, 255, 255),
                            CV_FILLED);
-
+                 */
 //                cv::imshow("dm", display_map);
 //                cv::waitKey(3);
-
-//                state = PATH_PLANNING;
+                if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
+                    look_ahead_idx++;
+                    if(look_ahead_idx == path_RRT.size()){
+                        waypoint_idx++;
+                        if(waypoint_idx == waypoints.size()){
+                            state = FINISH;
+                        }
+                        else{
+                            setcmdvel(0,0);
+                            cmd_vel_pub.publish(cmd_vel);
+                            goalpoint = waypoints[waypoint_idx];
+                            state = PATH_PLANNING;
+                        }
+                }} else
+                	state = PATH_PLANNING;
             }
             else{
                 if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
@@ -339,17 +338,18 @@ int main(int argc, char** argv){
                 	setcmdvel(ctrl.v, ctrl.w);
                 	cmd_vel_pub.publish(cmd_vel);
 
-                	if(++dm_iter == 8){
+//                	if(++dm_iter == 6){
                 		dynamic_mapping();
-                		dm_iter = 0;
-                	}
+//                		dm_iter = 0;
+//              	}
                 	rrt->setDynamicMap(&dynamic_map);
-                	std::vector<point> path_RRT_remain(path_RRT.begin()+look_ahead_idx-1, path_RRT.end());
-                	if( !rrt->checkPathValidity(path_RRT_remain) ){
-                		setcmdvel(0,0);
-                		cmd_vel_pub.publish(cmd_vel);
-                		state = PATH_PLANNING;
-                	}
+
+//                	std::vector<point> path_RRT_remain(path_RRT.begin()+look_ahead_idx-1, path_RRT.end());
+//                	if( checkPathValidity(path_RRT_remain) ){
+//                		setcmdvel(0,0);
+//                		cmd_vel_pub.publish(cmd_vel);
+//                		state = PATH_PLANNING;
+//                	}
                 }
             }
 
@@ -365,20 +365,20 @@ int main(int argc, char** argv){
                                (int)(robot_pose.y / 0.05 + map_origin_y),
                                (int)(robot_pose.x / 0.05 + map_origin_x)
                        ),
-                       10,
+                       6,
                        cv::Scalar(255, 255, 255),
                        CV_FILLED);
-            cv::circle(display_map,
-                       cv::Point(
-                               (int)(robot_pose.y / 0.05 + map_origin_y),
-                               (int)(robot_pose.x / 0.05 + map_origin_x)
-                       ),
-                       10,
-                       cv::Scalar(255, 255, 255),
-                       CV_FILLED);
+//            cv::circle(display_map,
+//                       cv::Point(
+//                               (int)(robot_pose.y / 0.05 + map_origin_y),
+//                               (int)(robot_pose.x / 0.05 + map_origin_x)
+//                       ),
+//                       10,
+//                       cv::Scalar(255, 255, 255),
+//                       CV_FILLED);
 
-            cv::imshow("dm", display_map);
-            cv::waitKey(3);
+//            cv::imshow("dm", display_map);
+//            cv::waitKey(3);
             control_rate.sleep();
             ROS_INFO("%d", look_ahead_idx);
         } break;
@@ -414,9 +414,9 @@ int main(int argc, char** argv){
         //ROS_INFO("%f", robot_pose_pitch);
         //printf("curr state : %d\ncurr robot pos : %.2f,%.2f\ncurr robot vel : %.2f,%.2f\n",state,robot_pose.x,robot_pose.y,cmd_vel.linear.x,cmd_vel.angular.z);
     }
-
     return 0;
 }
+
 
 void generate_path_RRT()
 {
@@ -566,15 +566,15 @@ bool isCollision()
     return false;
 }
 
-bool isReallyCollision(int idx){
+bool isReallyCollision(point x1, point x2){
     // Pioneer has radius about 40cm(= 8px).
-    int pixel_xrange = 8;
-    int pixel_yrange = 8;
+    int pixel_xrange = 3;
+    int pixel_yrange = 3;
 
-    auto x1_x_idx = (int)(robot_pose.x / res + map_origin_x);
-    auto x1_y_idx = (int)(robot_pose.y / res + map_origin_y);
-    auto x2_x_idx = (int)(path_RRT[idx].x / res + map_origin_x);
-    auto x2_y_idx = (int)(path_RRT[idx].y / res + map_origin_y);
+    auto x1_x_idx = (int)(x1.x / res + map_origin_x);
+    auto x1_y_idx = (int)(x1.y / res + map_origin_y);
+    auto x2_x_idx = (int)(x2.x / res + map_origin_x);
+    auto x2_y_idx = (int)(x2.y / res + map_origin_y);
 
     double diff_x = x1_x_idx - x2_x_idx;
     double diff_y = x1_y_idx - x2_y_idx;
@@ -595,7 +595,7 @@ bool isReallyCollision(int idx){
                        printf("Error! (map.rows or map.cols is 0)\n"); return true;
                       }
                    auto pixel = dynamic_map.at<uchar>(row, col);
-                   if(pixel != 255){
+                   if(pixel < 128){
                        return true;
                    }
                }
@@ -603,6 +603,15 @@ bool isReallyCollision(int idx){
     	}
 		return false;
     }
+}
+
+bool checkPathValidity(std::vector<point> path) {
+    for(auto i=0; i<path.size()-1; i++){
+        if(isReallyCollision(path[i], path[i+1])){
+            return false;
+        }
+    }
+    return true;
 }
 
 void setcmdvel(double v, double w){
@@ -622,7 +631,7 @@ void dynamic_mapping()
     */
     if(!robot_pose_check()){
         ROS_INFO("robot pos is illegal!");
-        setcmdvel(-0.1,0);
+//        setcmdvel(-0.1,0);
         return;
     }
 //    ros::Duration(0.25).sleep();
@@ -631,7 +640,7 @@ void dynamic_mapping()
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
         if(pc_iter->x != NAN && pc_iter->z != NAN){
-            if(pc_iter->x > 0 && pc_iter->x < 10.0 && pc_iter->y <0 && pc_iter->y > -10.0) {
+            if(pc_iter->x > 0 && pc_iter->x < 5.0 && pc_iter->y <0 && pc_iter->y > -10.0) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);
@@ -647,20 +656,20 @@ void dynamic_mapping()
                            2,
                            cv::Scalar(0, 0, 255),
                            CV_FILLED);
-                cv::circle(display_map,
-                           cv::Point(
-                                   pos_y,
-                                   pos_x
-                           ),
-                           2,
-                           cv::Scalar(0, 0, 255),
-                           CV_FILLED);
+//                cv::circle(display_map,
+//                           cv::Point(
+//                                   pos_y,
+//                                   pos_x
+//                           ),
+//                           2,
+//                           cv::Scalar(0, 0, 255),
+//                           CV_FILLED);
             }
         }
     }
 
-    cv::imshow("dm", display_map);
-    cv::waitKey(10);
+//    cv::imshow("dm", display_map);
+//    cv::waitKey(10);
 }
 
 bool robot_pose_check(){
