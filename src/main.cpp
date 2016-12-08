@@ -101,16 +101,16 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
     map_origin_y = map_y_range/2.0 - 0.5;
-    world_x_min = -10.0;
-    world_x_max = 10.0;
-    world_y_min = -10.0;
-    world_y_max = 10.0;
-    res = 0.05;
+    world_x_min = -1.0;
+    world_x_max = 2.0;
+    world_y_min = -2.0;
+    world_y_max = 2.0;
+    res = 0.01;
     printf("Load map\n");
 
     // Set Way Points
@@ -128,15 +128,7 @@ int main(int argc, char** argv){
     if(MODE_DYNAMIC){
 
         cv::GaussianBlur(dynamic_map, dynamic_map_circledetection, cv::Size(3, 3), 2, 2 );
-        std::vector<cv::Vec3f> circles;
-        cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
 
-        for( size_t i = 0; i < circles.size(); i++ ){
-            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-
-            // circle center
-            cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
-         }
         cv::Canny(dynamic_map, dynamic_map_linedetection, 200, 1000, 3);
         std::vector<cv::Vec4i> lines;
         cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 40, 20, 10 );
@@ -162,7 +154,7 @@ int main(int argc, char** argv){
     state = INIT;
     bool running = true;
     purePursuit pure_pursuit;
-    ros::Rate control_rate(25);
+    ros::Rate control_rate(10);
 
 
 //    cv::namedWindow( "debug path" );
@@ -495,24 +487,14 @@ void set_waypoints()
 {
     // scenario 1 sample way points
     point waypoint_candid[3];
-    waypoint_candid[0].x = -6.0;
-    waypoint_candid[0].y = 0.0;
-    waypoint_candid[1].x = 3.0;
-    waypoint_candid[1].y = 1.0;
-    waypoint_candid[2].x = -8.0;
-    waypoint_candid[2].y = 7.0;
+    waypoint_candid[0].x = 1.5;
+    waypoint_candid[0].y = -1.5;
+    waypoint_candid[1].x = 1.5;
+    waypoint_candid[1].y = 1.5;
+    waypoint_candid[2].x = -0.5;
+    waypoint_candid[2].y = -1.5;
     int order[] = {0,1,2};
     int order_size = 3;
-
-//    point waypoint_candid[3];
-//    waypoint_candid[0].x = -5.0;
-//    waypoint_candid[0].y = -4.0;
-//    waypoint_candid[1].x = 5.0;
-//    waypoint_candid[1].y = 6.0;
-//    waypoint_candid[2].x = -8.0;
-//    waypoint_candid[2].y = 8.0;
-//    int order[] = {0,1,2};
-//    int order_size = 3;
 
     for(int i = 0; i < order_size; i++){
         waypoints.push_back(waypoint_candid[order[i]]);

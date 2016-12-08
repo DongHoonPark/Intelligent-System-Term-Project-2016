@@ -409,7 +409,7 @@ std::vector<point> rrtTree::backtracking(){
             point_set.erase(iter+1);
         }
     }
-//    visualizeTree(point_set);
+    visualizeTree(point_set);
     return point_set;
 }
 
