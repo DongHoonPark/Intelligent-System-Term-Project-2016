@@ -189,10 +189,10 @@ int main(int argc, char** argv){
     control_rate.sleep();
     control_rate.sleep();
 
-    cv::namedWindow( "debug path" );
-    cv::namedWindow( "dm" );// Create a window for display.
-    cv::imshow( "dm", dynamic_map );
-    cv::imshow( "debug path", dynamic_map );
+    //cv::namedWindow( "debug path" );
+    //cv::namedWindow( "dm" );// Create a window for display.
+    //cv::imshow( "dm", dynamic_map );
+    //cv::imshow( "debug path", dynamic_map );
     cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
 
@@ -460,8 +460,8 @@ void generate_path_RRT()
                    cv::Scalar(255, 0, 255),
                    CV_FILLED);
 
-            cv::imshow("dm", dynamic_map);
-            cv::waitKey(30);
+            //cv::imshow("dm", dynamic_map);
+            //cv::waitKey(30);
             setcmdvel(-0.1,0);
         }
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
@@ -486,7 +486,7 @@ void generate_path_RRT()
             cv::Scalar(0, 0, 255),
             CV_FILLED);
     }
-    cv::imshow("debug path", dynamic_map_with_path);
+    //cv::imshow("debug path", dynamic_map_with_path);
     cv::waitKey(30);
 }
 
@@ -625,7 +625,7 @@ void dynamic_mapping()
         }
     }
 
-    cv::imshow("dm", dynamic_map);
+    //cv::imshow("dm", dynamic_map);
     cv::waitKey(10);
 }
 

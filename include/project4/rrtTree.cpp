@@ -79,7 +79,7 @@ void rrtTree::visualizeTree(){
 
     cv::namedWindow("Mapping");
     cv::Rect imgROI((int)Res*200,(int)Res*200,(int)Res*400,(int)Res*400);
-    cv::imshow("Mapping", imgResult(imgROI));
+//    cv::imshow("Mapping", imgResult(imgROI));
     cv::waitKey(30);
 
 }
@@ -116,7 +116,7 @@ void rrtTree::visualizeTree(std::vector<point> path){
 
     cv::namedWindow("Mapping");
     cv::Rect imgROI((int)Res*200,(int)Res*200,(int)Res*400,(int)Res*400);
-    cv::imshow("Mapping", imgResult(imgROI));
+//    cv::imshow("Mapping", imgResult(imgROI));
     cv::waitKey(100);
 
 }
@@ -216,7 +216,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
 //        }
         return 2;
     }
-    cv::imshow("dm", *(this->dynamic_map_ptr));
+//    cv::imshow("dm", *(this->dynamic_map_ptr));
     cv::waitKey(30);
     while(1){
         if(++iter > 60000){
