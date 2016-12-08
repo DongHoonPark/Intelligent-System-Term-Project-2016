@@ -106,8 +106,8 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/contest2016.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
-//                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+//                      std::string("/catkin_ws/src/project4/src/contest2016.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = 250.0 - 0.5;
@@ -143,19 +143,19 @@ int main(int argc, char** argv){
 
         cv::Canny(dynamic_map, dynamic_map_linedetection, 200, 1000, 3);
 
-        std::vector<cv::Vec3f> circles;
-        cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
+//        std::vector<cv::Vec3f> circles;
+//        cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
 
         std::vector<cv::Vec4i> lines;
         cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 68, 55, 30 );
 
-        for( size_t i = 0; i < circles.size(); i++ )
-        {
-            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-
-            // circle center
-            cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
-        }
+//        for( size_t i = 0; i < circles.size(); i++ )
+//        {
+//            cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+//
+//            // circle center
+//            cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
+//        }
         for( size_t i = 0; i < lines.size(); i++ )
         {
             cv::Point pt1, pt2;
@@ -357,7 +357,7 @@ int main(int argc, char** argv){
                     cmd_vel_pub.publish(cmd_vel);
                 }
             }
-            //dynamic_mapping();
+            dynamic_mapping();
 
             /*
              * add transition part from RUNNING to PATH_PLANNING
@@ -618,7 +618,7 @@ void dynamic_mapping()
                                    pos_y,
                                    pos_x
                            ),
-                           2,
+                           3,
                            cv::Scalar(0, 0, 255),
                            CV_FILLED);
             }
