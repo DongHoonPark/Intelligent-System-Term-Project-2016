@@ -58,7 +58,7 @@ point goalpoint;
 std::vector<point> path_RRT;
 
 //robot
-point robot_pose = {400.0, 1000.0, 0.0};
+point robot_pose = {0.0, 0.0, 0.0};
 geometry_msgs::Twist cmd_vel;
 
 //point cloud data from kinect
@@ -301,6 +301,9 @@ int main(int argc, char** argv){
 
             //dynamic_map = map.clone();
 */
+            while(robot_pose.x == 0.0){
+                ros::Duration(0.1).sleep();
+            }
 
             state = RUNNING;
         } break;
@@ -426,6 +429,9 @@ void generate_path_RRT()
     point current_pos;
 
     if(state == INIT){
+        while(robot_pose.x == 0.0){
+            ros::Duration(0.1).sleep();
+        }
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
     }
