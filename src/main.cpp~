@@ -117,7 +117,7 @@ int main(int argc, char** argv){
     world_y_min = -3.0;
     world_y_max = 3.0;
     */
-    res = 0.05;
+    res = 0.01;
     printf("Load map\n");
 
     // Set Way Points

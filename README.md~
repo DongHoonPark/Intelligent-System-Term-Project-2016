@@ -17,8 +17,8 @@
 마진 70 >> RRT* 너무 오래걸리고 아무 장애물 없는 맵에서 generate_path_RRT 무한루프에 걸림
 마진 60 >> ok?
 마진 50 >> Wiggle 때문에 길가다 코너에 걸림 꽤 자주걸린다 웬만하면 마진 60 쓰는걸로. 사실 마진 60도 부족하다 느껴짐.
->> cv::line( dynamic_map, pt1, pt2, cv::Scalar(240, 240, 240), 60, 4);
 Line shape를 바꿨는데 예전보단 더 모서리를 잘 표시해주는 느낌?
+>> cv::line( dynamic_map, pt1, pt2, cv::Scalar(240, 240, 240), 60, 4);
 
 
 3. (중요!)치명적 결함
