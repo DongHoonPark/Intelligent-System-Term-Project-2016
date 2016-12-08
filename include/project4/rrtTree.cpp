@@ -10,7 +10,7 @@ rrtTree::rrtTree(point x_init, point x_goal, cv::Mat map, double map_origin_x, d
     this->x_init = x_init;
     this->x_goal = x_goal;
     this->map_original = map.clone();
-    this->map = addMargin(map, margin);
+//    this->map = addMargin(map, margin);
     this->map_origin_x = map_origin_x;
     this->map_origin_y = map_origin_y;
     this->res = res;
@@ -191,9 +191,10 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
      * d = dimension of point
      * gamma = Heuristic parameter
      */
-    double gamma = 3.0;
+    double gamma = 5.0;
     auto iter = 0;
     auto generate_fail = 0;
+    std::vector<int> candids;
     if(checkPoint(this->root->location)!=0 ){
 //
 //        cv::circle(*this->dynamic_map_ptr,
@@ -252,10 +253,31 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
             if(this->ptrTable[this->count - 1]->cost + X_nears_c[i] < this->ptrTable[X_nears[i]]->cost)
                 changeEdge(X_nears[i], (this->count - 1), X_nears_c[i]);
          }
-        //printf("[RRT*] trial #: %d, iteration: %d, # of points: %d\n", generate_fail, iter, this->count);
+       //printf("[RRT*] trial #: %d, iteration: %d, # of points: %d\n", generate_fail, iter, this->count);
 
-        if(this->count >= K){
-            int idx_near_goal = (this->count == K)? nearestNeighbor(this->x_goal): (this->count - 1);
+        if(this->count == K) candids = nearNeighbors(this->x_goal, MaxStep);
+        else if(this-> count > K){
+        	int idx_near_goal = this->count - 1;
+        	point x_nearest = this->ptrTable[idx_near_goal]->location;
+        	double dx = this->x_goal.x - x_nearest.x;
+        	double dy = this->x_goal.y - x_nearest.y;
+        	auto len = sqrt(dx*dx + dy*dy);
+        	if(len < MaxStep) candids.push_back(idx_near_goal);
+        	if(iter % 10 == 0 && candids.size() > 1){
+        		int idx_min_cost = 0;
+        		auto min_cost = this->ptrTable[candids[0]]->cost;
+        		for(auto i=1; i<candids.size(); ++i){
+        			auto tmp_min_cost = this->ptrTable[candids[i]]->cost;
+        			if(tmp_min_cost < min_cost){
+        				min_cost = tmp_min_cost;
+        				idx_min_cost = i;
+        			}
+        		}
+        		addVertexAndCost(this->x_goal, this->x_goal, idx_min_cost, min_cost);	// cost in no more needed!
+        		return 0;
+        	}
+        	/*
+        	int idx_near_goal = (this->count == K)? nearestNeighbor(this->x_goal): (this->count - 1);
             point x_nearest = this->ptrTable[idx_near_goal]->location;
             double dx = this->x_goal.x - x_nearest.x;
             double dy = this->x_goal.y - x_nearest.y;
@@ -265,6 +287,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
 //                optimizePath();
                 return 0;
             }
+            */
         }
     }
     return -1;
@@ -351,7 +374,7 @@ bool rrtTree::isCollision(point x1, point x2) {
                     auto row = (int)(sample_x - pixel_xrange/2.0 + j);
                     auto col = (int)(sample_y - pixel_yrange/2.0 + k);
                     if(this->map.cols == 0 || this->map.rows == 0){
-                    	   printf("Error! (map.rows or map.cols is 0)\n"); return false;
+                    	   printf("Error! (map.rows or map.cols is 0)\n"); return true;
                        }
                     auto pixel = this->map.at<uchar>(row, col);
                     if(pixel != 255){
@@ -367,23 +390,34 @@ bool rrtTree::isCollision(point x1, point x2) {
 
 std::vector<point> rrtTree::backtracking(){
     // TODO
+	/*
     std::vector<point> point_set;
     auto idx_child = this->count - 1;
     auto idx_parent = this->ptrTable[idx_child]->idx_parent;
+    point_set.push_back(this->x_goal);
     while(idx_parent != 0){
     	auto idx_gp = this->ptrTable[idx_parent]->idx_parent;
     	if(!isCollision(this->ptrTable[idx_gp]->location, this->ptrTable[idx_child]->location)){
     		idx_parent = idx_gp;
     		continue;
     	}
-    	changeEdge(idx_child, idx_parent, 0);	// Cost is no more needed!
-    	point_set.push_back(this->ptrTable[idx_child]->location);
     	idx_child = idx_parent;
     	idx_parent = this->ptrTable[idx_child]->idx_parent;
     }
     point_set.push_back(this->ptrTable[idx_child]->location);
     point_set.push_back(this->root->location);
     std::reverse(point_set.begin(), point_set.end());
+    */
+    std::vector<point> point_set;
+    auto point_idx_now = this->ptrTable[this->count-1]->idx;
+    while(point_idx_now != 0){
+        node* node_toprocess = this->ptrTable[point_idx_now];
+        point_set.push_back(node_toprocess->location);
+        point_idx_now = node_toprocess->idx_parent;
+    }
+    point_set.push_back(this->root->location);
+    std::reverse(point_set.begin(), point_set.end());
+    visualizeTree(point_set);
     return point_set;
 }
 
@@ -422,7 +456,7 @@ std::vector<int> rrtTree::nearNeighbors(point x_new, double radius){
         auto dy = x_new.y - this->ptrTable[i]->location.y;
         auto len = sqrt(dx*dx + dy*dy);
         if(len < radius){
-            if(!isCollision(ptrTable[i]->location, x_new)){
+            if(!isCollision(this->ptrTable[i]->location, x_new)){
                 result.push_back(i);
             }
         }
@@ -489,4 +523,13 @@ int rrtTree::checkPoint(point check) {
     }
 
     return 0;
+}
+
+bool rrtTree::checkPathValidity(std::vector<point> path) {
+    for(auto i=0; i<path.size()-1; i++){
+        if(isCollision(path[i], path[i+1])){
+            return false;
+        }
+    }
+    return true;
 }

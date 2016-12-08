@@ -48,7 +48,7 @@ private:
     void addVertexAndCost(point x_new, point x_rand, int idx_min, double cost);
     void changeEdge(int idx, int idx_parent, double c);
     double getC(point, point);
-    void optimizePath();    // RRT*-smart implementation. Probabily unused?
+    void optimizePath();    // RRT*-smart implementation
 
 public:
     rrtTree();
@@ -65,6 +65,7 @@ public:
 
     void setDynamicMap(cv::Mat* dm);
     void resetDynamicMap();
+    bool checkPathValidity(std::vector<point> path);
 
     cv::Mat map_original;
 };

@@ -53,6 +53,7 @@ point goalpoint;
 
 //path
 std::vector<point> path_RRT;
+rrtTree* rrt;
 
 //robot
 point robot_pose;
@@ -109,7 +110,7 @@ int main(int argc, char** argv){
 
     map = cv::imread((std::string("/home/")+
                       std::string(user)+
-                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin1.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
+                      std::string("/catkin_ws/src/project4/src/ground_truth_map_sin2.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
     map_y_range = (map.cols == 0)? 800: map.cols;
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
@@ -131,6 +132,8 @@ int main(int argc, char** argv){
     display_map = map.clone();
 
     cv::Mat dynamic_map_circledetection = dynamic_map.clone();
+    cv::Mat dynamic_map_linedetection = dynamic_map.clone();
+
     if(MODE_DYNAMIC){
         cv::GaussianBlur(dynamic_map, dynamic_map_circledetection, cv::Size(3, 3), 2, 2 );
         std::vector<cv::Vec3f> circles;
@@ -141,6 +144,19 @@ int main(int argc, char** argv){
 
             // circle center
             cv::circle( dynamic_map, center, 10, cv::Scalar(255,255,255), CV_FILLED);
+         }
+
+        cv::Canny(dynamic_map, dynamic_map_linedetection, 200, 1000, 3);
+        std::vector<cv::Vec4i> lines;
+        cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 40, 20, 10 );
+        for( size_t i = 0; i < lines.size(); i++ ){
+            cv::Point pt1, pt2;
+            pt1.x = lines[i][0];
+            pt1.y = lines[i][1];
+            pt2.x = lines[i][2];
+            pt2.y = lines[i][3];
+
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),15);
         }
     }
 
@@ -159,14 +175,14 @@ int main(int argc, char** argv){
     state = INIT;
     bool running = true;
     purePursuit pure_pursuit;
-    ros::Rate control_rate(30);
+    ros::Rate control_rate(20);
 
 
-    cv::namedWindow( "debug path" );
+//    cv::namedWindow( "debug path" );
     cv::namedWindow( "dm" );    // Create a window for display.
     cv::startWindowThread();
     cv::imshow( "dm", display_map );
-    cv::imshow( "debug path", display_map );
+//    cv::imshow( "debug path", display_map );
     cv::waitKey(1000);          // Wait for a keystroke in the window
 
 
@@ -276,10 +292,6 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-        	if( robot_pose_check() && ++dm_iter == 8 ){
-        		dynamic_mapping();
-        		dm_iter = 0;
-        	}
             if(isCollision()){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
@@ -322,10 +334,22 @@ int main(int argc, char** argv){
                     }
                 }
                 else{
-                    auto ctrl = pure_pursuit.get_control(robot_pose, path_RRT[look_ahead_idx]);
+                	auto ctrl = pure_pursuit.get_control(robot_pose, path_RRT[look_ahead_idx]);
 
-                    setcmdvel(ctrl.v, ctrl.w);
-                    cmd_vel_pub.publish(cmd_vel);
+                	setcmdvel(ctrl.v, ctrl.w);
+                	cmd_vel_pub.publish(cmd_vel);
+
+                	if(++dm_iter == 8){
+                		dynamic_mapping();
+                		dm_iter = 0;
+                	}
+                	rrt->setDynamicMap(&dynamic_map);
+                	std::vector<point> path_RRT_remain(path_RRT.begin()+look_ahead_idx-1, path_RRT.end());
+                	if( !rrt->checkPathValidity(path_RRT_remain) ){
+                		setcmdvel(0,0);
+                		cmd_vel_pub.publish(cmd_vel);
+                		state = PATH_PLANNING;
+                	}
                 }
             }
 
@@ -369,8 +393,6 @@ int main(int argc, char** argv){
             setcmdvel(0,0);
             cmd_vel_pub.publish(cmd_vel);
 
-            dynamic_mapping();
-
             ros::spinOnce();
             control_rate.sleep();
             generate_path_RRT();
@@ -413,14 +435,14 @@ void generate_path_RRT()
         current_pos.y = robot_pose.y;
     }
 
-    auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
-//    rrt->setDynamicMap(&dynamic_map);
+    rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+    rrt->setDynamicMap(&dynamic_map);
 
     while(true){
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 3000, 2.0);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 10000, 2.5);
         if(rrtResult == 0){
             break;
         }
@@ -442,7 +464,7 @@ void generate_path_RRT()
             setcmdvel(-0.1,0);
         }
         rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
-//        rrt->setDynamicMap(&dynamic_map);
+        rrt->setDynamicMap(&dynamic_map);
     };
 
 
@@ -452,6 +474,7 @@ void generate_path_RRT()
         path_RRT.pop_back();
     }
     path_RRT.insert(path_RRT.end(), result.begin(), result.end());
+    /*
     cv::Mat display_map_with_path = display_map.clone();
     for(auto i=0; i<path_RRT.size(); i++){
         cv::circle(display_map_with_path,
@@ -465,6 +488,7 @@ void generate_path_RRT()
     }
     cv::imshow("debug path", display_map_with_path);
     cv::waitKey(30);
+    */
 }
 
 void set_waypoints()
