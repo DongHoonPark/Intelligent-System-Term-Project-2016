@@ -133,7 +133,7 @@ int main(int argc, char** argv){
     printf("Set way points\n");
 
     //Temp goalpoint
-    goalpoint = waypoints[1];
+    goalpoint = waypoints[0];
     dynamic_map = map.clone();
     cv::Mat dynamic_map_circledetection = dynamic_map.clone();
     cv::Mat dynamic_map_linedetection = dynamic_map.clone();
@@ -209,7 +209,10 @@ int main(int argc, char** argv){
 //    auto msg = dynamic_map_msg.toImageMsg();
 //    dynamic_map_pub.publish(msg);
 //    ros::spin();
-
+    while(robot_pose.x == 0.0){
+        ros::Duration(0.1).sleep();
+        ros::spin();
+    }
 
     while(running){
         switch (state) {
@@ -301,9 +304,7 @@ int main(int argc, char** argv){
 
             //dynamic_map = map.clone();
 */
-            while(robot_pose.x == 0.0){
-                ros::Duration(0.1).sleep();
-            }
+
 
             state = RUNNING;
         } break;
@@ -393,7 +394,7 @@ int main(int argc, char** argv){
             setcmdvel(0,0);
             cmd_vel_pub.publish(cmd_vel);
 
-            dynamic_mapping();
+            //dynamic_mapping();
 
             ros::spinOnce();
             control_rate.sleep();
@@ -431,6 +432,7 @@ void generate_path_RRT()
     if(state == INIT){
         while(robot_pose.x == 0.0){
             ros::Duration(0.1).sleep();
+            ros::spinOnce();
         }
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
