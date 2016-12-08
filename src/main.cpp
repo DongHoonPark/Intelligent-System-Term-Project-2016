@@ -58,7 +58,7 @@ point goalpoint;
 std::vector<point> path_RRT;
 
 //robot
-point robot_pose;
+point robot_pose = {400.0, 1000.0, 0.0};
 geometry_msgs::Twist cmd_vel;
 
 //point cloud data from kinect
@@ -108,8 +108,8 @@ int main(int argc, char** argv){
                       std::string(user)+
                       std::string("/catkin_ws/src/project4/src/contest2016.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
 //                      std::string("/catkin_ws/src/project4/src/ground_truth_map.pgm")).c_str(), CV_LOAD_IMAGE_GRAYSCALE);
-    map_y_range = (map.cols == 0)? 800: map.cols;
-    map_x_range = (map.rows == 0)? 800: map.rows;
+    map_y_range = (map.cols == 0)? 450: map.cols;
+    map_x_range = (map.rows == 0)? 500: map.rows;
     map_origin_x = 250.0 - 0.5;
     map_origin_y = 100.0 - 0.5;
     world_x_min = -2500.0;
@@ -147,7 +147,7 @@ int main(int argc, char** argv){
 //        cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
 
         std::vector<cv::Vec4i> lines;
-        cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 68, 55, 30 );
+        cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 55, 20, 20 );
 
 //        for( size_t i = 0; i < circles.size(); i++ )
 //        {
@@ -164,7 +164,7 @@ int main(int argc, char** argv){
             pt2.x = lines[i][2];
             pt2.y = lines[i][3];
 
-            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),5);
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),30);
         }
     }
 
@@ -189,10 +189,9 @@ int main(int argc, char** argv){
     control_rate.sleep();
     control_rate.sleep();
 
-    //cv::namedWindow( "debug path" );
-    //cv::namedWindow( "dm" );// Create a window for display.
-    //cv::imshow( "dm", dynamic_map );
-    //cv::imshow( "debug path", dynamic_map );
+    cv::namedWindow( "debug path" );
+    cv::namedWindow( "dm" );// Create a window for display.
+    cv::imshow( "dm", dynamic_map );
     cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
 
@@ -427,13 +426,14 @@ void generate_path_RRT()
     point current_pos;
 
     if(state == INIT){
-        current_pos.x = waypoints[0].x;
-        current_pos.y = waypoints[0].y;
+        current_pos.x = robot_pose.x;
+        current_pos.y = robot_pose.y;
     }
     else{
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
     }
+
 
     auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     rrt->setDynamicMap(&dynamic_map);
@@ -443,7 +443,7 @@ void generate_path_RRT()
 //        current_pos.x = robot_pose.x;
 //        current_pos.y = robot_pose.y;
 //        dynamic_map = map.clone();
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 2.5);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 1000);
         if(rrtResult == 0){
             break;
         }
@@ -456,7 +456,7 @@ void generate_path_RRT()
                            (int)(current_pos.y / res + map_origin_y),
                            (int)(current_pos.x / res + map_origin_x)
                    ),
-                   50,
+                   10,
                    cv::Scalar(255, 0, 255),
                    CV_FILLED);
 
@@ -482,11 +482,11 @@ void generate_path_RRT()
                 (int)(path_RRT[i].y / res + map_origin_y),
                 (int)(path_RRT[i].x / res + map_origin_x)
              ),
-            10,
+            5,
             cv::Scalar(0, 0, 255),
             CV_FILLED);
     }
-    //cv::imshow("debug path", dynamic_map_with_path);
+    cv::imshow("debug path", dynamic_map_with_path);
     cv::waitKey(30);
 }
 

@@ -377,6 +377,8 @@ std::vector<point> rrtTree::backtracking(){
     }
     point_set.push_back(this->root->location);
     std::reverse(point_set.begin(), point_set.end());
+    this->visualizeTree(point_set);
+    cv::waitKey(1000);
     return point_set;
 }
 
@@ -450,6 +452,7 @@ void rrtTree::optimizePath(){
 
 void rrtTree::setDynamicMap(cv::Mat *dynamic_map) {
     this->dynamic_map_ptr = dynamic_map;
+    this->map = dynamic_map_ptr->clone();
 }
 
 void rrtTree::resetDynamicMap() {
