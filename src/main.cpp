@@ -328,8 +328,8 @@ int main(int argc, char** argv){
                            cv::Scalar(255, 255, 255),
                            CV_FILLED);
 
-                cv::imshow("dm", dynamic_map);
-                cv::waitKey(3);
+//                cv::imshow("dm", dynamic_map);
+//                cv::waitKey(3);
 
                 state = PATH_PLANNING;
             }
@@ -371,12 +371,12 @@ int main(int argc, char** argv){
                                (int)(robot_pose.y / res + map_origin_y),
                                (int)(robot_pose.x / res + map_origin_x)
                        ),
-                       10,
+                       6,
                        cv::Scalar(255, 255, 255),
                        CV_FILLED);
 
-            cv::imshow("dm", dynamic_map);
-            cv::waitKey(3);
+//            cv::imshow("dm", dynamic_map);
+//            cv::waitKey(3);
             control_rate.sleep();
             ROS_INFO("%d", look_ahead_idx);
         } break;
@@ -585,7 +585,7 @@ void setcmdvel(double v, double w){
     cmd_vel.linear.z = 0.0;
     cmd_vel.angular.x = 0.0;
     cmd_vel.angular.y = 0.0;
-    cmd_vel.angular.z = w;
+    cmd_vel.angular.z = -w;
 }
 
 void dynamic_mapping()
