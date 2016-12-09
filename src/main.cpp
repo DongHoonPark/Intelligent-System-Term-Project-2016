@@ -32,6 +32,8 @@
 #include <pwd.h>
 #include <image_transport/image_transport.h>
 
+
+
 //map spec
 cv::Mat map;
 cv::Mat dynamic_map; //use this variable at dynamic mapping
@@ -149,7 +151,7 @@ int main(int argc, char** argv){
 //        cv::HoughCircles( dynamic_map_circledetection, circles, CV_HOUGH_GRADIENT, 1, 8, 50, 15, 0, 10 );
 
         std::vector<cv::Vec4i> lines;
-        cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 55, 20, 20 );
+        cv::HoughLinesP(dynamic_map_linedetection, lines, 1, CV_PI/180, 50, 20, 20 );
 
 //        for( size_t i = 0; i < circles.size(); i++ )
 //        {
@@ -166,7 +168,7 @@ int main(int argc, char** argv){
             pt2.x = lines[i][2];
             pt2.y = lines[i][3];
 
-            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),30);
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),60);
         }
     }
 
@@ -461,7 +463,7 @@ void generate_path_RRT()
 //        current_pos.x = robot_pose.x;
 //        current_pos.y = robot_pose.y;
 //        dynamic_map = map.clone();
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 1000);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 500);
         if(rrtResult == 0){
             break;
         }
@@ -622,10 +624,8 @@ void dynamic_mapping()
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
-        if(pc_iter->x != NAN && pc_iter->z !=
-                                std::vector<point> tocheck(path_RRT.begin()+look_ahead_idx-1)
-        rrt->checkPathValidity() NAN){
-            if(pc_iter->x > 0 && pc_iter->x < 1.5 && pc_iter->y <-0.2 && pc_iter->y > -1.0 && fabs(pc_iter->z) < 0.25) {
+        if(pc_iter->x != NAN && pc_iter->z !=NAN){
+            if(pc_iter->x > 0.5 && pc_iter->x < 1.5 && pc_iter->y <-0.2 && pc_iter->y > -1.0 ) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);

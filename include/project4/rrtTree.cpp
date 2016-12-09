@@ -10,7 +10,8 @@ rrtTree::rrtTree(point x_init, point x_goal, cv::Mat map, double map_origin_x, d
     this->x_init = x_init;
     this->x_goal = x_goal;
     this->map_original = map.clone();
-    this->map = addMargin(map, margin);
+//    this->map = addMargin(map, margin);
+    this->map = map.clone();
     this->map_origin_x = map_origin_x;
     this->map_origin_y = map_origin_y;
     this->res = res;

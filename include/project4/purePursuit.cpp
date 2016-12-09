@@ -36,7 +36,7 @@ control purePursuit::get_control(point x_robot, point x_goal){
     else{
         //persuit
         this->ctrl.w = M_PI/15 * diff_th/fabs(diff_th);
-        this->ctrl.v = 0.3;
+        this->ctrl.v = 0.2;
     }
 
     return ctrl;
