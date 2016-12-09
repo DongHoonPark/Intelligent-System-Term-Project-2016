@@ -118,7 +118,7 @@ int main(int argc, char** argv){
     printf("Set way points\n");
 
     //Temp goalpoint
-    goalpoint = waypoints[1];
+    goalpoint = waypoints[0];
     dynamic_map = map.clone();
 //    display_map = map.clone();
 
@@ -139,7 +139,7 @@ int main(int argc, char** argv){
             pt2.x = lines[i][2];
             pt2.y = lines[i][3];
 
-            cv::line( dynamic_map, pt1, pt2, cv::Scalar(240, 240, 240), 15);
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(240, 240, 240), 60, 4);
         }
     }
 
@@ -622,7 +622,7 @@ void dynamic_mapping()
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
         if(pc_iter->x != NAN && pc_iter->z != NAN){
-            if(pc_iter->x > 0 && pc_iter->x < 5.0 && pc_iter->y <0 && pc_iter->y > -10.0) {
+            if(pc_iter->x > 0 && pc_iter->x < 1.5 && pc_iter->y <-0.2 && pc_iter->y > -1.0 && fabs(pc_iter->z) < 0.25) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);

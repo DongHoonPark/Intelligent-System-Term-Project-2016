@@ -253,7 +253,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
             if(this->ptrTable[this->count - 1]->cost + X_nears_c[i] < this->ptrTable[X_nears[i]]->cost)
                 changeEdge(X_nears[i], (this->count - 1), X_nears_c[i]);
          }
-       //printf("[RRT*] trial #: %d, iteration: %d, # of points: %d\n", generate_fail, iter, this->count);
+       printf("[RRT*] trial #: %d, iteration: %d, # of points: %d\n", generate_fail, iter, this->count);
 
         /*
         if(this->count == K) candids = nearNeighbors(this->x_goal, MaxStep);
