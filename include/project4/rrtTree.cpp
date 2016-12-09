@@ -485,3 +485,12 @@ int rrtTree::checkPoint(point check) {
 
     return 0;
 }
+
+bool rrtTree::checkPathValidity(std::vector<point> path) {
+    for(auto i=0; i<path.size()-1; i++){
+        if(isCollision(path[i], path[i+1])){
+            return false;
+        }
+    }
+    return true;
+}

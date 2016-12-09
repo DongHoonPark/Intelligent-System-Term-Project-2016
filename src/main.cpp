@@ -82,6 +82,8 @@ auto robot_pose_roll = 0.0;
 int look_ahead_idx = 0;
 auto back_step_flag = 0;
 
+rrtTree* rrt;
+
 int main(int argc, char** argv){
     ros::init(argc, argv, "rrt_main");
     ros::NodeHandle n;
@@ -89,7 +91,7 @@ int main(int argc, char** argv){
     // Initialize topics
     ros::Subscriber gazebo_pose_sub = n.subscribe("server_msg",15,poseCallback);
     ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",100);
-    ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points",100, callback_points);
+    ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points",1, callback_points);
     /*
     ros::Subscriber gazebo_pose_sub = n.subscribe("/gazebo/model_states",1,callback_state);
     ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",1);
@@ -359,6 +361,14 @@ int main(int argc, char** argv){
                     setcmdvel(ctrl.v, ctrl.w);
                     cmd_vel_pub.publish(cmd_vel);
                 }
+                dynamic_mapping();
+                if(look_ahead_idx > 0){
+                    std::vector<point> tocheck(path_RRT.begin()+look_ahead_idx-1, path_RRT.end());
+                    if(!rrt->checkPathValidity(tocheck)){
+                        state = PATH_PLANNING;
+                    }
+                }
+
             }
             //dynamic_mapping();
 
@@ -443,7 +453,7 @@ void generate_path_RRT()
     }
 
 
-    auto rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
+    rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     rrt->setDynamicMap(&dynamic_map);
 
     while(true){
@@ -612,8 +622,10 @@ void dynamic_mapping()
     pcl::PointCloud<pcl::PointXYZ>::iterator pc_iter;
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
-        if(pc_iter->x != NAN && pc_iter->z != NAN){
-            if(pc_iter->x > 0 && pc_iter->x < 10.0 && pc_iter->y <0 && pc_iter->y > -10.0) {
+        if(pc_iter->x != NAN && pc_iter->z !=
+                                std::vector<point> tocheck(path_RRT.begin()+look_ahead_idx-1)
+        rrt->checkPathValidity() NAN){
+            if(pc_iter->x > 0 && pc_iter->x < 1.5 && pc_iter->y <-0.2 && pc_iter->y > -1.0 && fabs(pc_iter->z) < 0.25) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);
@@ -626,8 +638,8 @@ void dynamic_mapping()
                                    pos_y,
                                    pos_x
                            ),
-                           3,
-                           cv::Scalar(0, 0, 255),
+                           2,
+                           cv::Scalar(0, 0, 0),
                            CV_FILLED);
             }
         }

@@ -65,5 +65,6 @@ public:
 
     void setDynamicMap(cv::Mat* dm);
     void resetDynamicMap();
+    bool checkPathValidity(std::vector<point> path);
     cv::Mat map_original;
 };
