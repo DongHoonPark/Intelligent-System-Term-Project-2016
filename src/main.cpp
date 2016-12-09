@@ -164,7 +164,7 @@ int main(int argc, char** argv){
             pt2.x = lines[i][2];
             pt2.y = lines[i][3];
 
-            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),30);
+            cv::line( dynamic_map, pt1, pt2, cv::Scalar(0,0,0),60);
         }
     }
 
@@ -451,7 +451,7 @@ void generate_path_RRT()
 //        current_pos.x = robot_pose.x;
 //        current_pos.y = robot_pose.y;
 //        dynamic_map = map.clone();
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 1000);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 2000, 500);
         if(rrtResult == 0){
             break;
         }

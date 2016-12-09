@@ -192,7 +192,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
      * d = dimension of point
      * gamma = Heuristic parameter
      */
-    double gamma = 3.0;
+    double gamma = 500;
     auto iter = 0;
     auto generate_fail = 0;
     if(checkPoint(this->root->location)!=0 ){
