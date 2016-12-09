@@ -87,9 +87,9 @@ int main(int argc, char** argv){
     ros::NodeHandle n;
 
     // Initialize topics
-    ros::Subscriber gazebo_pose_sub = n.subscribe("server_msg",15,poseCallback);
-    ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",100);
-    ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points",100, callback_points);
+    ros::Subscriber gazebo_pose_sub = n.subscribe("server_msg", 15, poseCallback);
+    ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel", 100);
+    ros::Subscriber gazebo_camera_sub = n.subscribe("/camera/depth/points", 1, callback_points);
     /*
     ros::Subscriber gazebo_pose_sub = n.subscribe("/gazebo/model_states",1,callback_state);
     ros::Publisher cmd_vel_pub = n.advertise<geometry_msgs::Twist>("/RosAria/cmd_vel",1);
@@ -190,8 +190,9 @@ int main(int argc, char** argv){
     control_rate.sleep();
 
     cv::namedWindow( "debug path" );
-    cv::namedWindow( "dm" );// Create a window for display.
-    cv::imshow( "dm", dynamic_map );
+    cv::startWindowThread();
+//    cv::namedWindow( "dm" );// Create a window for display.
+//    cv::imshow( "dm", dynamic_map );
     cv::waitKey(1000);                                          // Wait for a keystroke in the window
 
 

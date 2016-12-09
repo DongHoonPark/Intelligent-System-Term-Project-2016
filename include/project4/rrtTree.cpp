@@ -10,7 +10,7 @@ rrtTree::rrtTree(point x_init, point x_goal, cv::Mat map, double map_origin_x, d
     this->x_init = x_init;
     this->x_goal = x_goal;
     this->map_original = map.clone();
-    this->map = addMargin(map, margin);
+//    this->map = addMargin(map, margin);
     this->map_origin_x = map_origin_x;
     this->map_origin_y = map_origin_y;
     this->res = res;
@@ -217,7 +217,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
         return 2;
     }
 //    cv::imshow("dm", *(this->dynamic_map_ptr));
-    cv::waitKey(30);
+//    cv::waitKey(30);
     while(1){
         if(++iter > 60000){
             if(++generate_fail > 3)
@@ -352,7 +352,7 @@ bool rrtTree::isCollision(point x1, point x2) {
                     auto row = (int)(sample_x - pixel_xrange/2.0 + j);
                     auto col = (int)(sample_y - pixel_yrange/2.0 + k);
                     if(this->map.cols == 0 || this->map.rows == 0){
-                    	   printf("Error! (map.rows or map.cols is 0)\n"); return false;
+                    	   printf("Error! (map.rows or map.cols is 0)\n"); return true;
                        }
                     auto pixel = this->map.at<uchar>(row, col);
                     if(pixel != 255){
@@ -377,8 +377,8 @@ std::vector<point> rrtTree::backtracking(){
     }
     point_set.push_back(this->root->location);
     std::reverse(point_set.begin(), point_set.end());
-    this->visualizeTree(point_set);
-    cv::waitKey(1000);
+//    this->visualizeTree(point_set);
+//    cv::waitKey(1000);
     return point_set;
 }
 
