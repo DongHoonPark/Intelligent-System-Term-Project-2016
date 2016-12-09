@@ -61,7 +61,9 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="151b176d-3327-4e83-b220-e06633b2733a" name="Default" comment="" />
+    <list default="true" id="151b176d-3327-4e83-b220-e06633b2733a" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.cpp" afterPath="$PROJECT_DIR$/src/main.cpp" />
+    </list>
     <ignored path="project4.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -83,8 +85,8 @@
       <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4332">
-              <caret line="94" column="74" selection-start-line="94" selection-start-column="74" selection-end-line="94" selection-end-column="74" />
+            <state relative-caret-position="132">
+              <caret line="627" column="71" selection-start-line="627" selection-start-column="71" selection-end-line="627" selection-end-column="71" />
               <folding>
                 <element signature="e#212#244#0" expanded="true" />
               </folding>
@@ -155,8 +157,8 @@
         <option value="$PROJECT_DIR$/worlds/real_world_map.world" />
         <option value="$PROJECT_DIR$/include/project4/rrtTree.h" />
         <option value="$PROJECT_DIR$/include/project4/purePursuit.cpp" />
-        <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/include/project4/rrtTree.cpp" />
+        <option value="$PROJECT_DIR$/src/main.cpp" />
       </list>
     </option>
   </component>
@@ -755,12 +757,12 @@
       <workItem from="1481158714166" duration="100000" />
       <workItem from="1481167557956" duration="709000" />
       <workItem from="1481207107790" duration="14787000" />
-      <workItem from="1481256161380" duration="5644000" />
+      <workItem from="1481256161380" duration="5726000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27397000" />
+    <option name="totallyTimeSpent" value="27479000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -953,8 +955,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4332">
-          <caret line="94" column="74" selection-start-line="94" selection-start-column="74" selection-end-line="94" selection-end-column="74" />
+        <state relative-caret-position="132">
+          <caret line="627" column="71" selection-start-line="627" selection-start-column="71" selection-end-line="627" selection-end-column="71" />
           <folding>
             <element signature="e#212#244#0" expanded="true" />
           </folding>

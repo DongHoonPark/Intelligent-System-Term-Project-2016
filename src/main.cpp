@@ -625,7 +625,7 @@ void dynamic_mapping()
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
         if(pc_iter->x != NAN && pc_iter->z !=NAN){
-            if(pc_iter->x > 0.5 && pc_iter->x < 1.5 && pc_iter->y <-0.2 && pc_iter->y > -1.0 ) {
+            if(pc_iter->x > 0.5 && pc_iter->x < 1.5 && pc_iter->y <-0.0 && pc_iter->y > -1.0 ) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);
