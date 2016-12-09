@@ -5,7 +5,7 @@ purePursuit::purePursuit(){
 }
 
 
-#define STD_V 0.30  // max speed is 1.2 m/s
+#define STD_V 0.40  // max speed is 1.2 m/s
 #define STD_W1 0.50  // max angular speed is 5.235988 rad/sec (=300 degree/sec)
 #define STD_W2 0.50
 

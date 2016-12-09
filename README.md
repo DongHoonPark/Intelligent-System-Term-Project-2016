@@ -1,3 +1,33 @@
+# Challenge Week
+
+안녕 미래의 나와 미래의 동훈아
+이 노트가 완주 실패확률을 최소화하는 스위트 스팟을 찾아내는데 1이라도 도움이 되었으면 해
+
+1. purePursuit: s2 branch 방식으로 교체함(파라미터는 real_world에 맞춤).
+길이 좁아서 Wiggle이 치명적이라 purePursuit을 교체함.
+(STD__V, STD_W1, STD_W2, threshold angle) = (0.45, 0.50, 0.50, M_PI/12.0) (결함 3-2 관찰됨)
+(STD__V, STD_W1, STD_W2, threshold angle) = (0.40, 0.50, 0.50, M_PI/15.0) (결함 3-2가 줄어듦)
+최고속도가 작아서 딱히 속도 느려지는 scheme은 쓸필요 없어보임. 항상 0 또는 STD_V로 고정시키거나 0.1씩 깎는 방법.
+
+
+2. cv::line 마진: 50 또는 60?
+50으로 맞출땐 >> generate__path_RRT의 K = 9000
+60으로 맞출땐 >> generate__path_RRT의 K = 11000
+체감상 마진이 60일때 50일때 RRT* 러닝타임 갭이 큰거같음
+마진 70 >> RRT* 너무 오래걸리고 아무 장애물 없는 맵에서 generate_path_RRT 무한루프에 걸림
+마진 60 >> ok?
+마진 50 >> Wiggle 때문에 길가다 코너에 걸림 꽤 자주걸린다 웬만하면 마진 60 쓰는걸로. 사실 마진 60도 부족하다 느껴짐.
+>> cv::line( dynamic_map, pt1, pt2, cv::Scalar(240, 240, 240), 60, 4);
+Line shape를 바꿨는데 예전보단 더 모서리를 잘 표시해주는 느낌?
+
+
+3. (중요!)치명적 결함
+1)waypoint[1] >> waypoint[2]로 이동할 때 중간에 걸린 벽을 인식 못할때가 있음.
+2)회전하는 중 dynamic_mapping한 영향으로 멀쩡한 path가 검정으로 칠해지는 경우가 있음. 이것때문에 RRT*가 경로를 생성 못하는(무한루프에 걸림) 경우가 존재.
+
+
+
+
 # IS2016_project_hw4
 
 RRT* 제외하고는 전부 구현 완료된듯.

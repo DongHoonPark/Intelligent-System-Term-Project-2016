@@ -106,11 +106,18 @@ int main(int argc, char** argv){
     map_x_range = (map.rows == 0)? 800: map.rows;
     map_origin_x = map_x_range/2.0 - 0.5;
     map_origin_y = map_y_range/2.0 - 0.5;
+
     world_x_min = -1.0;
     world_x_max = 2.0;
     world_y_min = -2.0;
     world_y_max = 2.0;
-    res = 0.01;
+    /*
+    world_x_min = -2.0;
+    world_x_max = 3.0;
+    world_y_min = -3.0;
+    world_y_max = 3.0;
+    */
+    res = 0.05;
     printf("Load map\n");
 
     // Set Way Points
@@ -271,7 +278,7 @@ int main(int argc, char** argv){
             /*
              * copy your code from previous project2
              */
-            if(isCollision() && isReallyCollision(robot_pose, path_RRT[look_ahead_idx])){
+            if(isReallyCollision(robot_pose, path_RRT[look_ahead_idx])){
                 setcmdvel(-0.1,0);
                 cmd_vel_pub.publish(cmd_vel);
                 ros::spinOnce();
@@ -279,16 +286,14 @@ int main(int argc, char** argv){
 
                 dynamic_mapping();
                 ros::spinOnce();
-                /*
                 cv::circle(dynamic_map,
                            cv::Point(
-                                   (int)(robot_pose.y / 0.05 + map_origin_y),
-                                   (int)(robot_pose.x / 0.05 + map_origin_x)
+                                   (int)(robot_pose.y / res + map_origin_y),
+                                   (int)(robot_pose.x / res + map_origin_x)
                            ),
-                           12,
+                           80,
                            cv::Scalar(255, 255, 255),
                            CV_FILLED);
-                 */
 //                cv::imshow("dm", display_map);
 //                cv::waitKey(3);
                 if(pure_pursuit.is_reached(robot_pose, path_RRT[look_ahead_idx])){
@@ -331,6 +336,7 @@ int main(int argc, char** argv){
                 	cmd_vel_pub.publish(cmd_vel);
 
 //                	if(++dm_iter == 6){
+                	if(ctrl.w < 0.5)
                 		dynamic_mapping();
 //                		dm_iter = 0;
 //              	}
@@ -354,10 +360,10 @@ int main(int argc, char** argv){
 
             cv::circle(dynamic_map,
                        cv::Point(
-                               (int)(robot_pose.y / 0.05 + map_origin_y),
-                               (int)(robot_pose.x / 0.05 + map_origin_x)
+                               (int)(robot_pose.y / res + map_origin_y),
+                               (int)(robot_pose.x / res + map_origin_x)
                        ),
-                       6,
+                       80,
                        cv::Scalar(255, 255, 255),
                        CV_FILLED);
 //            cv::circle(display_map,
@@ -419,22 +425,22 @@ void generate_path_RRT()
     point current_pos;
 
     if(state == INIT){
-        current_pos.x = waypoints[0].x;
-        current_pos.y = waypoints[0].y;
-    }
-    else{
-        current_pos.x = robot_pose.x;
-        current_pos.y = robot_pose.y;
+    	current_pos.x = waypoints[0].x;
+    	current_pos.y = waypoints[0].y;
+    } else{
+    	current_pos.x = robot_pose.x;
+    	current_pos.y = robot_pose.y;
     }
 
     rrt = new rrtTree(current_pos, goalpoint, dynamic_map, map_origin_x, map_origin_y, res, 12);
     rrt->setDynamicMap(&dynamic_map);
 
     while(true){
+    	printf("trial\n");
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 10000, 2.0);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 20000, 2.0);
         if(rrtResult == 0){
             break;
         }
@@ -444,11 +450,11 @@ void generate_path_RRT()
             current_pos.y = robot_pose.y;
                     cv::circle(dynamic_map,
                     cv::Point(
-                           (int)(current_pos.y / 0.05 + map_origin_y),
-                           (int)(current_pos.x / 0.05 + map_origin_x)
+                           (int)(current_pos.y / res + map_origin_y),
+                           (int)(current_pos.x / res + map_origin_x)
                     ),
                     20,
-                    cv::Scalar(255, 0, 255),
+                    cv::Scalar(255, 255, 255),
                     CV_FILLED);
 
 //            cv::imshow("dm", dynamic_map);
@@ -471,8 +477,8 @@ void generate_path_RRT()
     for(auto i=0; i<path_RRT.size(); i++){
         cv::circle(display_map_with_path,
             cv::Point(
-                (int)(path_RRT[i].y / 0.05 + map_origin_y),
-                (int)(path_RRT[i].x / 0.05 + map_origin_x)
+                (int)(path_RRT[i].y / res + map_origin_y),
+                (int)(path_RRT[i].x / res + map_origin_x)
              ),
             10,
             cv::Scalar(0, 0, 255),
@@ -487,6 +493,14 @@ void set_waypoints()
 {
     // scenario 1 sample way points
     point waypoint_candid[3];
+    /*
+    waypoint_candid[0].x = 2.0;
+    waypoint_candid[0].y = -1.5;
+    waypoint_candid[1].x = 1.5;
+    waypoint_candid[1].y = 1.5;
+    waypoint_candid[2].x = -0.5;
+    waypoint_candid[2].y = -1.5;
+    */
     waypoint_candid[0].x = 1.5;
     waypoint_candid[0].y = -1.5;
     waypoint_candid[1].x = 1.5;
