@@ -434,7 +434,7 @@ void generate_path_RRT()
         ros::spinOnce();
         current_pos.x = robot_pose.x;
         current_pos.y = robot_pose.y;
-        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 10000, 2.5);
+        auto rrtResult = rrt->generateRRTst(world_x_max, world_x_min, world_y_max, world_y_min, 10000, 2.0);
         if(rrtResult == 0){
             break;
         }
@@ -622,14 +622,13 @@ void dynamic_mapping()
     for(pc_iter = point_cloud.points.begin(); pc_iter < point_cloud.points.end(); pc_iter++){
         // Kinect frame => Grid map frame
         if(pc_iter->x != NAN && pc_iter->z != NAN){
-            if(pc_iter->x > 0 && pc_iter->x < 1.5 && pc_iter->y <-0.2 && pc_iter->y > -1.0 && fabs(pc_iter->z) < 0.25) {
+            if(pc_iter->x > 0 && pc_iter->x < 1.5 && pc_iter->y <-0.0 && pc_iter->y > -1.5) {
                 int pos_x = (int) (
                         (cos(robot_pose.th) * (pc_iter->z) + sin(robot_pose.th) * (pc_iter->x) + robot_pose.x) / res +
                         map_origin_x);
                 int pos_y = (int) (
                         (sin(robot_pose.th) * (pc_iter->z) - cos(robot_pose.th) * (pc_iter->x) + robot_pose.y) / res +
                         map_origin_y);
-                //dynamic_map.at<uchar>(pos_x, pos_y) = 0;
                 cv::circle(dynamic_map,
                            cv::Point(
                                    pos_y,
@@ -638,14 +637,7 @@ void dynamic_mapping()
                            2,
                            cv::Scalar(0, 0, 255),
                            CV_FILLED);
-//                cv::circle(display_map,
-//                           cv::Point(
-//                                   pos_y,
-//                                   pos_x
-//                           ),
-//                           2,
-//                           cv::Scalar(0, 0, 255),
-//                           CV_FILLED);
+                cv::line(dynamic_map, cv::Point(pos_y, pos_x), cv::Point(robot_pose.y, robot_pose.x), cv::Scalar(255,255,255), 4);
             }
         }
     }

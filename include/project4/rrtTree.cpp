@@ -191,7 +191,7 @@ int rrtTree::generateRRTst(double x_max, double x_min, double y_max, double y_mi
      * d = dimension of point
      * gamma = Heuristic parameter
      */
-    double gamma = 5.0;
+    double gamma = 3.0;
     auto iter = 0;
     auto generate_fail = 0;
     std::vector<int> candids;
